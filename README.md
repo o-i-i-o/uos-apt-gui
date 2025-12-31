@@ -2,7 +2,9 @@
 基于QT5框架 主要用于在uos_arm64平台下 在没开开发者模式时 通过apt工具可视化管理包
 
 # 编译
-安装依赖 sudo apt install cmake g++ qtbase5-dev
+安装依赖 
+
+ sudo apt install cmake g++ qtbase5-dev
 
  cd build  && make -j$(nproc)
 
@@ -11,4 +13,5 @@
 
 # 提示
 代码使用AI IDE辅助编写 ，本人不对程序质量做任何保证，欢迎提交pr.
-· amd64平台理论可以编译使用，但是没实际测试过。
+ 
+ amd64平台理论可以编译使用，但是没实际测试过。
