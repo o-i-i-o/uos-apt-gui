@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(debmanager VERSION 1.0.0 LANGUAGES CXX)
+project(apt-gui VERSION 1.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,8 +22,8 @@ set(HEADERS
     include/operationprogressdialog.h
 )
 
-add_executable(debmanager ${SOURCES} ${HEADERS})
+add_executable(apt-gui ${SOURCES} ${HEADERS})
 
-target_link_libraries(debmanager Qt5::Widgets)
+target_link_libraries(apt-gui Qt5::Widgets)
 
-install(TARGETS debmanager RUNTIME DESTINATION bin)
+install(TARGETS apt-gui RUNTIME DESTINATION bin)
