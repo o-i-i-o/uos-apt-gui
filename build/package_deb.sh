@@ -64,6 +64,9 @@ if which update-desktop-database >/dev/null 2>&1; then
     update-desktop-database -q
 fi
 
+#赋予程序执行权限
+chmod +x /usr/bin/apt-gui
+
 exit 0
 EOF
 
