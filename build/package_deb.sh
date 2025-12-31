@@ -8,7 +8,7 @@ set -e
 echo "=== DEB包打包脚本 ==="
 
 # 基本配置
-APP_NAME="debmanager"
+APP_NAME="apt-gui"
 VERSION="1.0.2"
 ARCH="all"
 MAINTAINER="Your Name <your.email@example.com>"
