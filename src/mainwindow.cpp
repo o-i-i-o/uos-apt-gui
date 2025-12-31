@@ -1,0 +1,670 @@
+#include "mainwindow.h"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QTimer>
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , packageManager(new PackageManager(this))
+{
+    setupUI();
+    setupConnections();
+    
+    setWindowTitle("DEB包管理器");
+    setMinimumSize(1000, 600);
+    
+    // 延迟检查系统命令，确保窗口完全显示
+    QTimer::singleShot(100, this, [this]() {
+        QString error = packageManager->getLastError();
+        if (!error.isEmpty()) {
+            QMessageBox::critical(this, "系统错误", error);
+        } else {
+            refreshPackageList();
+        }
+    });
+}
+
+MainWindow::~MainWindow()
+{
+}
+
+void MainWindow::setupUI()
+{
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
+    
+    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+    
+    // 创建标签页控件
+    tabWidget = new QTabWidget(this);
+    
+    // 第一页：已安装包管理
+    QWidget *installedPage = new QWidget();
+    QVBoxLayout *installedLayout = new QVBoxLayout(installedPage);
+    
+    // 搜索和刷新区域
+    QHBoxLayout *searchLayout = new QHBoxLayout();
+    QLabel *searchLabel = new QLabel("搜索本地包:");
+    searchLabel->setStyleSheet("font-weight: bold;");
+    searchLayout->addWidget(searchLabel);
+    
+    searchEdit = new QLineEdit();
+    searchEdit->setPlaceholderText("输入包名搜索已安装的包...");
+    searchLayout->addWidget(searchEdit);
+    
+    searchButton = new QPushButton("搜索");
+    searchLayout->addWidget(searchButton);
+    
+    refreshButton = new QPushButton("刷新列表");
+    searchLayout->addWidget(refreshButton);
+    
+    batchInstallButton = new QPushButton("安装本地包");
+    searchLayout->addWidget(batchInstallButton);
+    
+    searchLayout->addStretch();
+    installedLayout->addLayout(searchLayout);
+    
+    // 包列表表格
+    packageTable = new QTableWidget();
+    packageTable->setColumnCount(4);
+    packageTable->setHorizontalHeaderLabels(QStringList() << "选择" << "包名" << "版本" << "描述");
+    packageTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    packageTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    packageTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    packageTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    packageTable->setSortingEnabled(true);
+    installedLayout->addWidget(packageTable);
+    
+    // 操作按钮区域
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    
+    removeButton = new QPushButton("卸载选中包");
+    purgeConfigCheckbox = new QCheckBox("删除配置文件");
+    autoRemoveButton = new QPushButton("自动清理");
+    
+    buttonLayout->addWidget(removeButton);
+    buttonLayout->addWidget(purgeConfigCheckbox);
+    buttonLayout->addWidget(autoRemoveButton);
+    buttonLayout->addStretch();
+    
+    installedLayout->addLayout(buttonLayout);
+    
+    // 状态区域
+    progressBar = new QProgressBar();
+    progressBar->setVisible(false);
+    installedLayout->addWidget(progressBar);
+    
+    statusLabel = new QLabel("就绪");
+    installedLayout->addWidget(statusLabel);
+    
+    // 添加标签页
+    tabWidget->addTab(installedPage, "本地包管理");
+    
+    // 第二页：在线安装
+    QWidget *onlinePage = new QWidget();
+    QVBoxLayout *onlineLayout = new QVBoxLayout(onlinePage);
+    
+    // 搜索和刷新区域
+    QHBoxLayout *onlineSearchLayout = new QHBoxLayout();
+    QLabel *onlineSearchLabel = new QLabel("搜索在线包:");
+    onlineSearchLabel->setStyleSheet("font-weight: bold;");
+    onlineSearchLayout->addWidget(onlineSearchLabel);
+    
+    onlineSearchEdit = new QLineEdit();
+    onlineSearchEdit->setPlaceholderText("输入包名搜索在线包...");
+    onlineSearchLayout->addWidget(onlineSearchEdit);
+    
+    onlineSearchButton = new QPushButton("搜索");
+    onlineSearchLayout->addWidget(onlineSearchButton);
+    
+    refreshAptCacheButton = new QPushButton("更新缓存");
+    onlineSearchLayout->addWidget(refreshAptCacheButton);
+    
+    // 将全部更新按钮和完全更新复选框移到顶部
+    upgradeSystemButton = new QPushButton("全部更新");
+    onlineSearchLayout->addWidget(upgradeSystemButton);
+    
+    distUpgradeCheckbox = new QCheckBox("系统更新");
+    onlineSearchLayout->addWidget(distUpgradeCheckbox);
+    
+    onlineSearchLayout->addStretch();
+    onlineLayout->addLayout(onlineSearchLayout);
+    
+    // 包列表表格
+    onlinePackageTable = new QTableWidget();
+    onlinePackageTable->setColumnCount(4);
+    onlinePackageTable->setHorizontalHeaderLabels(QStringList() << "选择" << "包名" << "已安装" << "描述");
+    onlinePackageTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    onlinePackageTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    onlinePackageTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    onlinePackageTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    onlinePackageTable->setSortingEnabled(true);
+    onlineLayout->addWidget(onlinePackageTable);
+    
+    // 操作按钮区域
+    QHBoxLayout *onlineButtonLayout = new QHBoxLayout();
+    
+    installOnlineButton = new QPushButton("安装选中包");
+    onlineButtonLayout->addWidget(installOnlineButton);
+    
+    onlineButtonLayout->addStretch();
+    onlineLayout->addLayout(onlineButtonLayout);
+    
+    // 添加系统更新提示信息
+    QLabel *updateHintLabel = new QLabel("提示：完全更新会安装新的依赖并移除过时的包，可能会改变系统版本。");
+    updateHintLabel->setWordWrap(true);
+    updateHintLabel->setStyleSheet("font-size: 10px; color: #666;");
+    onlineLayout->addWidget(updateHintLabel);
+    
+    tabWidget->addTab(onlinePage, "在线安装");
+    
+    mainLayout->addWidget(tabWidget);
+}
+
+void MainWindow::setupConnections()
+{
+    connect(refreshButton, &QPushButton::clicked, this, &MainWindow::refreshPackageList);
+    connect(searchButton, &QPushButton::clicked, this, &MainWindow::searchLocalPackages);
+    connect(searchEdit, &QLineEdit::returnPressed, this, &MainWindow::searchLocalPackages);
+    connect(removeButton, &QPushButton::clicked, this, &MainWindow::removeSelectedPackages);
+    connect(batchInstallButton, &QPushButton::clicked, this, &MainWindow::installLocalPackages);
+    connect(autoRemoveButton, &QPushButton::clicked, this, &MainWindow::autoRemovePackages);
+    connect(packageTable, &QTableWidget::itemSelectionChanged, this, &MainWindow::onPackageSelectionChanged);
+    connect(packageTable, &QTableWidget::itemChanged, this, &MainWindow::onItemChanged);
+    
+    // 在线包管理连接
+    connect(tabWidget, &QTabWidget::currentChanged, this, &MainWindow::onTabChanged);
+    connect(onlineSearchButton, &QPushButton::clicked, this, &MainWindow::searchOnlinePackages);
+    connect(onlineSearchEdit, &QLineEdit::returnPressed, this, &MainWindow::searchOnlinePackages);
+    connect(refreshAptCacheButton, &QPushButton::clicked, this, &MainWindow::updateAptCache);
+    connect(installOnlineButton, &QPushButton::clicked, this, &MainWindow::installSelectedOnlinePackages);
+    connect(upgradeSystemButton, &QPushButton::clicked, this, &MainWindow::upgradeSystem);
+    connect(onlinePackageTable, &QTableWidget::itemSelectionChanged, this, &MainWindow::onOnlinePackageSelectionChanged);
+    connect(onlinePackageTable, &QTableWidget::itemChanged, this, &MainWindow::onOnlineItemChanged);
+    
+    connect(packageManager, &PackageManager::operationStarted, this, &MainWindow::onOperationStarted);
+    connect(packageManager, &PackageManager::operationProgress, this, &MainWindow::onOperationProgress);
+    connect(packageManager, &PackageManager::operationOutput, this, [this](const QString &output) {
+        if (progressDialog && progressDialog->isVisible()) {
+            progressDialog->appendOutput(output);
+        }
+    });
+    connect(packageManager, &PackageManager::operationFinished, this, &MainWindow::onOperationFinished);
+}
+
+void MainWindow::refreshPackageList()
+{
+    showStatusMessage("正在加载已安装包列表...");
+    packageManager->loadInstalledPackages();
+}
+
+void MainWindow::searchLocalPackages()
+{
+    QString searchText = searchEdit->text().trimmed();
+    if (searchText.isEmpty()) {
+        refreshPackageList();
+        return;
+    }
+    
+    showStatusMessage(QString("正在搜索包: %1").arg(searchText));
+    
+    QList<DebPackage> filteredPackages;
+    for (const DebPackage &pkg : currentPackages) {
+        if (pkg.name.contains(searchText, Qt::CaseInsensitive) || 
+            pkg.description.contains(searchText, Qt::CaseInsensitive)) {
+            filteredPackages.append(pkg);
+        }
+    }
+    
+    populatePackageTable(filteredPackages);
+    showStatusMessage(QString("找到 %1 个匹配的包").arg(filteredPackages.size()));
+}
+
+void MainWindow::removeSelectedPackages()
+{
+    QStringList packageNames = getSelectedPackages();
+    if (packageNames.isEmpty()) {
+        QMessageBox::warning(this, "警告", "请选择要卸载的包");
+        return;
+    }
+    
+    bool purge = purgeConfigCheckbox->isChecked();
+    QString confirmMsg = purge ? "确定要完全卸载以下包并删除配置文件吗？\n%1" : "确定要卸载以下包吗？\n%1";
+    
+    int result = QMessageBox::question(this, "确认卸载", 
+                                     QString(confirmMsg).arg(packageNames.join("\n")),
+                                     QMessageBox::Yes | QMessageBox::No);
+    
+    if (result == QMessageBox::Yes) {
+        // 使用批量卸载方法，只请求一次权限
+        packageManager->removeMultiplePackages(packageNames, purge);
+    }
+}
+
+void MainWindow::installLocalPackages()
+{
+    QStringList filePaths = QFileDialog::getOpenFileNames(this, 
+                                                        "选择要安装的DEB包", 
+                                                        QDir::homePath(), 
+                                                        "DEB包文件 (*.deb)");
+    
+    if (filePaths.isEmpty()) {
+        return;
+    }
+    
+    int result = QMessageBox::question(this, "确认安装", 
+                                     QString("确定要安装以下DEB包吗？\n%1").arg(filePaths.join("\n")),
+                                     QMessageBox::Yes | QMessageBox::No);
+    
+    if (result == QMessageBox::Yes) {
+        // 使用批量安装方法，只请求一次权限
+        packageManager->installMultiplePackages(filePaths);
+    }
+}
+
+void MainWindow::autoRemovePackages()
+{
+    int result = QMessageBox::question(this, "确认自动清理", 
+                                     "确定要执行自动清理吗？这将移除不再需要的依赖包。",
+                                     QMessageBox::Yes | QMessageBox::No);
+    
+    if (result == QMessageBox::Yes) {
+        packageManager->autoRemove();
+    }
+}
+
+void MainWindow::populatePackageTable(const QList<DebPackage> &packages)
+{
+    packageTable->setRowCount(0);
+    currentPackages = packages;
+    
+    for (int i = 0; i < packages.size(); ++i) {
+        const DebPackage &pkg = packages[i];
+        
+        packageTable->insertRow(i);
+        
+        // 第一列：复选框
+        QTableWidgetItem *checkItem = new QTableWidgetItem();
+        checkItem->setCheckState(Qt::Unchecked);
+        checkItem->setTextAlignment(Qt::AlignCenter);
+        packageTable->setItem(i, 0, checkItem);
+        
+        // 第二列：包名
+        QTableWidgetItem *nameItem = new QTableWidgetItem(pkg.name);
+        nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
+        packageTable->setItem(i, 1, nameItem);
+        
+        // 第三列：版本
+        QTableWidgetItem *versionItem = new QTableWidgetItem(pkg.version);
+        versionItem->setFlags(versionItem->flags() & ~Qt::ItemIsEditable);
+        packageTable->setItem(i, 2, versionItem);
+        
+        // 第四列：描述
+        QTableWidgetItem *descItem = new QTableWidgetItem(pkg.description);
+        descItem->setFlags(descItem->flags() & ~Qt::ItemIsEditable);
+        packageTable->setItem(i, 3, descItem);
+    }
+    
+    // 调整列宽
+    packageTable->resizeColumnsToContents();
+    packageTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+}
+
+void MainWindow::onOperationStarted(const QString &message)
+{
+    progressBar->setVisible(true);
+    progressBar->setRange(0, 0); // 无限进度条
+    setEnabled(false);
+    
+    // 自动刷新时显示"加载中"
+    if (message == "正在加载已安装包列表...") {
+        showStatusMessage("加载中");
+    } else {
+        showStatusMessage(message);
+    }
+    
+    // 只排除"正在加载已安装包列表..."这个特定操作的进度对话框
+    // 其他所有操作（包括搜索、安装、卸载、清理、更新等）都显示进度对话框
+    if (message != "正在加载已安装包列表...") {
+        // 创建并显示进度对话框
+        progressDialog = new OperationProgressDialog(this);
+        progressDialog->setOperationName(message);
+        progressDialog->show();
+    }
+}
+
+void MainWindow::onOperationProgress(const QString &message)
+{
+    // 自动刷新过程中保持"加载中"状态，不频繁更新
+    if (message.contains("已加载") && message.contains("个包")) {
+        // 只更新进度对话框，不更新状态栏
+        if (progressDialog && progressDialog->isVisible()) {
+            progressDialog->setOperationName(message);
+        }
+    } else {
+        // 其他操作正常更新状态栏
+        showStatusMessage(message);
+        
+        // 更新进度对话框的操作名称
+        if (progressDialog && progressDialog->isVisible()) {
+            progressDialog->setOperationName(message);
+        }
+    }
+}
+
+void MainWindow::onOperationFinished(bool success, const QString &message)
+{
+    progressBar->setVisible(false);
+    setEnabled(true);
+    
+    // 操作完成后，更新进度对话框状态，启用关闭按钮
+    if (progressDialog && progressDialog->isVisible()) {
+        progressDialog->setFinished(success, message);
+    }
+    
+    if (success) {
+        // 如果是加载包列表操作，直接显示包
+        if (message.contains("加载")) {
+            currentPackages = packageManager->getCurrentPackages();
+            populatePackageTable(currentPackages);
+            
+            // 显示就绪状态和已加载包数量，不自动清空
+            QString statusMessage = QString("就绪 - 共加载 %1 个已安装包").arg(currentPackages.size());
+            showStatusMessage(statusMessage, 0);
+        } 
+        // 如果是搜索在线包操作，显示在线包列表
+        else if (message.contains("找到")) {
+            currentOnlinePackages = packageManager->getOnlineSearchResults();
+            
+            // 清空表格
+            onlinePackageTable->setRowCount(0);
+            
+            // 填充表格
+            for (int i = 0; i < currentOnlinePackages.size(); ++i) {
+                const DebPackage &pkg = currentOnlinePackages[i];
+                
+                onlinePackageTable->insertRow(i);
+                
+                // 第一列：复选框
+                QTableWidgetItem *checkItem = new QTableWidgetItem();
+                checkItem->setCheckState(Qt::Unchecked);
+                checkItem->setTextAlignment(Qt::AlignCenter);
+                onlinePackageTable->setItem(i, 0, checkItem);
+                
+                // 第二列：包名
+                QTableWidgetItem *nameItem = new QTableWidgetItem(pkg.name);
+                nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
+                onlinePackageTable->setItem(i, 1, nameItem);
+                
+                // 第三列：已安装状态
+                QTableWidgetItem *installedItem = new QTableWidgetItem(pkg.installed ? "是" : "否");
+                installedItem->setFlags(installedItem->flags() & ~Qt::ItemIsEditable);
+                installedItem->setTextAlignment(Qt::AlignCenter);
+                onlinePackageTable->setItem(i, 2, installedItem);
+                
+                // 第四列：描述
+                QTableWidgetItem *descItem = new QTableWidgetItem(pkg.description);
+                descItem->setFlags(descItem->flags() & ~Qt::ItemIsEditable);
+                onlinePackageTable->setItem(i, 3, descItem);
+            }
+            
+            // 调整列宽
+            onlinePackageTable->resizeColumnsToContents();
+            onlinePackageTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+            
+            // 显示搜索结果数量
+            showStatusMessage(QString("找到 %1 个匹配的包").arg(currentOnlinePackages.size()));
+        } else {
+            // 安装或卸载操作完成后需要刷新列表
+            refreshPackageList();
+        }
+    } else {
+        showStatusMessage("操作失败");
+    }
+}
+
+void MainWindow::onItemChanged(QTableWidgetItem *item)
+{
+    if (!item) return;
+    
+    // 只有当修改的是第一列的复选框时才处理
+    if (item->column() == 0) {
+        // 禁用信号避免无限循环
+        packageTable->blockSignals(true);
+        
+        int row = item->row();
+        if (item->checkState() == Qt::Checked) {
+            // 选中复选框时，将当前行添加到选择中
+            for (int col = 1; col < packageTable->columnCount(); ++col) {
+                QTableWidgetItem *tableItem = packageTable->item(row, col);
+                if (tableItem) {
+                    packageTable->setItemSelected(tableItem, true);
+                }
+            }
+        } else {
+            // 取消复选框时，从选择中移除当前行
+            for (int col = 1; col < packageTable->columnCount(); ++col) {
+                QTableWidgetItem *tableItem = packageTable->item(row, col);
+                if (tableItem) {
+                    packageTable->setItemSelected(tableItem, false);
+                }
+            }
+        }
+        
+        // 恢复信号
+        packageTable->blockSignals(false);
+        
+        // 更新状态信息
+        onPackageSelectionChanged();
+    }
+}
+
+void MainWindow::onPackageSelectionChanged()
+{
+    // 禁用信号避免无限循环
+    packageTable->blockSignals(true);
+    
+    // 同步行选择和复选框状态
+    for (int i = 0; i < packageTable->rowCount(); ++i) {
+        QTableWidgetItem *checkItem = packageTable->item(i, 0);
+        QTableWidgetItem *nameItem = packageTable->item(i, 1);
+        
+        if (checkItem && nameItem) {
+            // 检查行是否被选中
+            bool isSelected = nameItem->isSelected();
+            checkItem->setCheckState(isSelected ? Qt::Checked : Qt::Unchecked);
+        }
+    }
+    
+    // 恢复信号
+    packageTable->blockSignals(false);
+    
+    // 更新状态信息
+    int selectedCount = 0;
+    for (int i = 0; i < packageTable->rowCount(); ++i) {
+        QTableWidgetItem *nameItem = packageTable->item(i, 1);
+        if (nameItem && nameItem->isSelected()) {
+            selectedCount++;
+        }
+    }
+    showStatusMessage(QString("已选择 %1 个包").arg(selectedCount));
+}
+
+QStringList MainWindow::getSelectedPackages()
+{
+    QStringList selectedPackages;
+    
+    for (int i = 0; i < packageTable->rowCount(); ++i) {
+        QTableWidgetItem *checkItem = packageTable->item(i, 0);
+        if (checkItem && checkItem->checkState() == Qt::Checked) {
+            QTableWidgetItem *nameItem = packageTable->item(i, 1);
+            if (nameItem) {
+                selectedPackages.append(nameItem->text());
+            }
+        }
+    }
+    
+    return selectedPackages;
+}
+
+
+
+void MainWindow::onTabChanged(int index)
+{
+    // 当切换到在线安装页时，检查apt缓存
+    if (index == 1) {
+        if (!packageManager->checkAptCache()) {
+            int result = QMessageBox::question(this, "apt缓存过期", 
+                                            "apt缓存已过期或不存在，是否更新？",
+                                            QMessageBox::Yes | QMessageBox::No);
+            if (result == QMessageBox::Yes) {
+                updateAptCache();
+            }
+        }
+    } 
+    // 当切换到本地包管理页时，延迟执行刷新，确保窗口渲染完成
+    else if (index == 0) {
+        QTimer::singleShot(100, this, [this]() {
+            refreshPackageList();
+        });
+    }
+}
+
+void MainWindow::searchOnlinePackages()
+{
+    QString searchText = onlineSearchEdit->text().trimmed();
+    if (searchText.isEmpty()) {
+        QMessageBox::warning(this, "警告", "请输入搜索关键词");
+        return;
+    }
+    
+    packageManager->searchOnlinePackages(searchText);
+}
+
+void MainWindow::installSelectedOnlinePackages()
+{
+    QStringList packageNames = getSelectedOnlinePackages();
+    if (packageNames.isEmpty()) {
+        QMessageBox::warning(this, "警告", "请选择要安装的包");
+        return;
+    }
+    
+    int result = QMessageBox::question(this, "确认安装", 
+                                     QString("确定要安装以下包吗？\n%1").arg(packageNames.join("\n")),
+                                     QMessageBox::Yes | QMessageBox::No);
+    
+    if (result == QMessageBox::Yes) {
+        packageManager->installOnlinePackages(packageNames);
+    }
+}
+
+void MainWindow::updateAptCache()
+{
+    packageManager->updateAptCache();
+}
+
+void MainWindow::upgradeSystem()
+{
+    bool distUpgrade = distUpgradeCheckbox->isChecked();
+    QString confirmMsg = distUpgrade ? "确定要执行系统完全更新吗？这将安装新的依赖并移除过时的包，可能会改变系统版本。" : "确定要执行系统更新吗？";
+    
+    int result = QMessageBox::question(this, "确认更新", 
+                                     confirmMsg,
+                                     QMessageBox::Yes | QMessageBox::No);
+    
+    if (result == QMessageBox::Yes) {
+        packageManager->upgradeSystem(distUpgrade);
+    }
+}
+
+void MainWindow::onOnlinePackageSelectionChanged()
+{
+    // 同步行选择和复选框状态
+    onlinePackageTable->blockSignals(true);
+    
+    for (int i = 0; i < onlinePackageTable->rowCount(); ++i) {
+        QTableWidgetItem *checkItem = onlinePackageTable->item(i, 0);
+        QTableWidgetItem *nameItem = onlinePackageTable->item(i, 1);
+        
+        if (checkItem && nameItem) {
+            bool isSelected = nameItem->isSelected();
+            checkItem->setCheckState(isSelected ? Qt::Checked : Qt::Unchecked);
+        }
+    }
+    
+    onlinePackageTable->blockSignals(false);
+    
+    // 更新状态信息
+    int selectedCount = 0;
+    for (int i = 0; i < onlinePackageTable->rowCount(); ++i) {
+        QTableWidgetItem *nameItem = onlinePackageTable->item(i, 1);
+        if (nameItem && nameItem->isSelected()) {
+            selectedCount++;
+        }
+    }
+    showStatusMessage(QString("已选择 %1 个在线包").arg(selectedCount));
+}
+
+void MainWindow::onOnlineItemChanged(QTableWidgetItem *item)
+{
+    if (!item) return;
+    
+    // 只有当修改的是第一列的复选框时才处理
+    if (item->column() == 0) {
+        // 禁用信号避免无限循环
+        onlinePackageTable->blockSignals(true);
+        
+        int row = item->row();
+        if (item->checkState() == Qt::Checked) {
+            // 选中复选框时，将当前行添加到选择中
+            for (int col = 1; col < onlinePackageTable->columnCount(); ++col) {
+                QTableWidgetItem *tableItem = onlinePackageTable->item(row, col);
+                if (tableItem) {
+                    onlinePackageTable->setItemSelected(tableItem, true);
+                }
+            }
+        } else {
+            // 取消复选框时，从选择中移除当前行
+            for (int col = 1; col < onlinePackageTable->columnCount(); ++col) {
+                QTableWidgetItem *tableItem = onlinePackageTable->item(row, col);
+                if (tableItem) {
+                    onlinePackageTable->setItemSelected(tableItem, false);
+                }
+            }
+        }
+        
+        // 恢复信号
+        onlinePackageTable->blockSignals(false);
+        
+        // 更新状态信息
+        onOnlinePackageSelectionChanged();
+    }
+}
+
+QStringList MainWindow::getSelectedOnlinePackages()
+{
+    QStringList selectedPackages;
+    
+    for (int i = 0; i < onlinePackageTable->rowCount(); ++i) {
+        QTableWidgetItem *checkItem = onlinePackageTable->item(i, 0);
+        if (checkItem && checkItem->checkState() == Qt::Checked) {
+            QTableWidgetItem *nameItem = onlinePackageTable->item(i, 1);
+            if (nameItem) {
+                selectedPackages.append(nameItem->text());
+            }
+        }
+    }
+    
+    return selectedPackages;
+}
+
+void MainWindow::showStatusMessage(const QString &message, int timeout)
+{
+    statusLabel->setText(message);
+    if (timeout > 0) {
+        QTimer::singleShot(timeout, [this]() {
+            statusLabel->setText("就绪");
+        });
+    }
+}
