@@ -6,7 +6,9 @@
 
  sudo apt install cmake g++ qtbase5-dev
 
- cd build  && make -j$(nproc)
+ 编译
+
+ mkdir build && cd build && cmake .. && make -j$(nproc)
 
 # 运行
 无需安装，直接运行二进制文件程序
