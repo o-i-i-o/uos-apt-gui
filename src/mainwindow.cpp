@@ -6,6 +6,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , progressDialog(nullptr)
     , packageManager(new PackageManager(this))
 {
     setupUI();
@@ -327,6 +328,8 @@ void MainWindow::onOperationStarted(const QString &message)
     // 只排除"正在加载已安装包列表..."这个特定操作的进度对话框
     // 其他所有操作（包括搜索、安装、卸载、清理、更新等）都显示进度对话框
     if (message != "正在加载已安装包列表...") {
+        // 释放上一次操作遗留的对话框，避免重复创建后泄漏
+        delete progressDialog;
         // 创建并显示进度对话框
         progressDialog = new OperationProgressDialog(this);
         progressDialog->setOperationName(message);

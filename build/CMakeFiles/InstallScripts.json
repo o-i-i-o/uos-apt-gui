@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/media/oi-io/data/opensource/uos-apt-gui/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -12,6 +12,7 @@
 #include <QTabWidget>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QPointer>
 #include "packagemanager.h"
 #include "operationprogressdialog.h"
 
@@ -75,7 +76,7 @@ private:
     QList<DebPackage> currentOnlinePackages;
     
     // 操作进度对话框
-    OperationProgressDialog *progressDialog;
+    QPointer<OperationProgressDialog> progressDialog;
     
     PackageManager *packageManager;
     QList<DebPackage> currentPackages;

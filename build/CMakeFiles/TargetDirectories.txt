@@ -1,0 +1,9 @@
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/apt-gui.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/edit_cache.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/rebuild_cache.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/list_install_components.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/install.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/install/local.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/install/strip.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/apt-gui_autogen_timestamp_deps.dir
+/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles/apt-gui_autogen.dir
