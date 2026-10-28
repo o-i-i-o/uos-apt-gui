@@ -1,132 +1,99 @@
 #!/bin/bash
+# DEB 包打包脚本：编译 → 按 CMake 安装规则填充 → 生成 deb
 
-# DEB包打包脚本
-# 用于将debmanager二进制文件打包为deb包
+set -euo pipefail
 
-set -e
-
-echo "=== DEB包打包脚本 ==="
-
-# 基本配置
 APP_NAME="apt-gui"
 VERSION="1.0.2"
-ARCH="all"
+ARCH="$(dpkg --print-architecture)"
 MAINTAINER="Your Name <your.email@example.com>"
-DESCRIPTION="A simple DEB package manager for Linux"
-DEPENDS="apt, policykit-1"
+DEPENDS="apt, polkitd | policykit-1, libc6, libstdc++6, libqt5core5a, libqt5widgets5, libqt5dbus5"
 
-# 工作目录
-BUILD_DIR=$(pwd)
-SOURCES_DIR=$(dirname $BUILD_DIR)
+BUILD_DIR="$(pwd)"
+SOURCE_DIR="$(dirname "$BUILD_DIR")"
 DEB_DIR="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}"
+OUTPUT_DEB="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}.deb"
 
-# 检查二进制文件是否存在
-if [ ! -f "$BUILD_DIR/$APP_NAME" ]; then
-    echo "错误：二进制文件 $BUILD_DIR/$APP_NAME 不存在"
-    echo "请先编译项目：cd $BUILD_DIR && make"
+if [ ! -f "$SOURCE_DIR/CMakeLists.txt" ]; then
+    echo "错误：请在项目的 build 目录中运行本脚本" >&2
     exit 1
 fi
 
-echo "1. 创建DEB包结构..."
-# 创建基本目录结构
-mkdir -p "$DEB_DIR/DEBIAN"
-mkdir -p "$DEB_DIR/usr/bin"
-mkdir -p "$DEB_DIR/usr/share/applications"
-mkdir -p "$DEB_DIR/usr/share/icons/hicolor/64x64/apps"
+echo "=== DEB 包打包脚本 ==="
 
-# 创建DEBIAN/control文件
-echo "2. 创建control文件..."
+echo "1. 配置与编译..."
+cmake -S "$SOURCE_DIR" -B "$BUILD_DIR" -DCMAKE_INSTALL_PREFIX=/usr >/dev/null
+make -C "$BUILD_DIR" -j"$(nproc)" >/dev/null
+
+echo "2. 安装到打包目录..."
+rm -rf "$DEB_DIR"
+mkdir -p "$DEB_DIR/DEBIAN"
+DESTDIR="$DEB_DIR" make -C "$BUILD_DIR" install >/dev/null
+
+echo "3. 生成 control..."
+INSTALLED_SIZE="$(du -sk "$DEB_DIR" | cut -f1)"
 cat > "$DEB_DIR/DEBIAN/control" <<EOF
 Package: $APP_NAME
 Version: $VERSION
 Architecture: $ARCH
 Maintainer: $MAINTAINER
-Description: $DESCRIPTION
+Installed-Size: $INSTALLED_SIZE
 Depends: $DEPENDS
-Section: utils
+Section: admin
 Priority: optional
+Description: DEB package manager with a polkit-authorized helper
+ 桌面端 DEB 包管理器。安装、卸载、更新等特权操作通过系统总线调用
+ apt-helperd，由 polkit 完成授权，客户端无需以 root 运行。
 EOF
 
-# 创建postinst脚本
-echo "3. 创建postinst脚本..."
-cat > "$DEB_DIR/DEBIAN/postinst" <<EOF
+echo "4. 生成维护脚本..."
+cat > "$DEB_DIR/DEBIAN/postinst" <<'EOF'
 #!/bin/bash
-
 set -e
 
-# 更新图标缓存
-if which update-icon-caches >/dev/null 2>&1; then
-    update-icon-caches /usr/share/icons/hicolor/*/apps
+if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+    systemctl daemon-reload >/dev/null 2>&1 || true
 fi
 
-# 更新桌面数据库
-if which update-desktop-database >/dev/null 2>&1; then
-    update-desktop-database -q
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database -q /usr/share/applications >/dev/null 2>&1 || true
 fi
 
-#赋予程序执行权限
-chmod +x /usr/bin/apt-gui
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
+fi
 
 exit 0
 EOF
 
-chmod +x "$DEB_DIR/DEBIAN/postinst"
-
-# 创建prerm脚本
-echo "4. 创建prerm脚本..."
-cat > "$DEB_DIR/DEBIAN/prerm" <<EOF
+cat > "$DEB_DIR/DEBIAN/postrm" <<'EOF'
 #!/bin/bash
-
 set -e
+
+if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+    systemctl daemon-reload >/dev/null 2>&1 || true
+fi
+
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database -q /usr/share/applications >/dev/null 2>&1 || true
+fi
+
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
+fi
 
 exit 0
 EOF
 
-chmod +x "$DEB_DIR/DEBIAN/prerm"
+chmod 0755 "$DEB_DIR/DEBIAN/postinst" "$DEB_DIR/DEBIAN/postrm"
 
-# 复制二进制文件
-echo "5. 复制二进制文件..."
-cp "$BUILD_DIR/$APP_NAME" "$DEB_DIR/usr/bin/"
-chmod +x "$DEB_DIR/usr/bin/$APP_NAME"
-
-# 创建图标文件（使用默认图标，实际使用时应替换为真实图标）
-echo "6. 创建图标文件..."
-cat > "$DEB_DIR/usr/share/icons/hicolor/64x64/apps/$APP_NAME.png" <<EOF
-89504E470D0A1A0A0000000D4948445200000040000000400806000000A4F08F14000000017352474200AECE1CE90000000467414D410000B18F0BFC6105000000206348524D00007A26000080840000FA00000080E8000075300000EA6000003A98000017709CBA513F0000003949444154388D6360000000020001E2215032D0000009100012540410A0000003249454E44AE426082
-EOF
-
-# 创建.desktop快捷方式
-echo "7. 创建.desktop快捷方式..."
-cat > "$DEB_DIR/usr/share/applications/$APP_NAME.desktop" <<EOF
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=DEB包管理器
-GenericName=包管理器
-Comment=管理DEB包的工具
-Exec=$APP_NAME
-Icon=$APP_NAME
-Terminal=false
-Categories=System;PackageManager;
-StartupNotify=true
-EOF
-
-# 打包为DEB包
-echo "8. 生成DEB包..."
-dpkg-deb --build "$DEB_DIR"
-
-# 清理临时文件
-echo "9. 清理临时文件..."
+echo "5. 打包..."
+dpkg-deb --build --root-owner-group "$DEB_DIR" "$OUTPUT_DEB" >/dev/null
 rm -rf "$DEB_DIR"
 
-echo "=== 打包完成！ ==="
-echo "DEB包已生成：$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}.deb"
-echo ""
-echo "安装命令：sudo dpkg -i $BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}.deb"
-echo "卸载命令：sudo dpkg -r $APP_NAME"
-echo ""
-echo "使用说明："
-echo "  1. 安装后，可在应用程序菜单中找到\"DEB包管理器\""
-echo "  2. 或直接在终端中运行：$APP_NAME"
-echo ""
-echo "=== 脚本结束 ==="
+echo "=== 打包完成：$OUTPUT_DEB ==="
+dpkg-deb --info "$OUTPUT_DEB" | sed -n '1,18p'
+echo
+echo "安装：sudo apt install $OUTPUT_DEB"
+echo "卸载：sudo apt remove $APP_NAME"
+echo "验证：busctl introspect com.debmanager.Helper /com/debmanager/Helper"

@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "apt-gui_autogen"
   "CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o"
   "CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o.d"
+  "CMakeFiles/apt-gui.dir/src/helperclient.cpp.o"
+  "CMakeFiles/apt-gui.dir/src/helperclient.cpp.o.d"
   "CMakeFiles/apt-gui.dir/src/main.cpp.o"
   "CMakeFiles/apt-gui.dir/src/main.cpp.o.d"
   "CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o"

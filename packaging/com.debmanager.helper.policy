@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+  "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+  <vendor>DebManager</vendor>
+  <vendor_url>https://example.com</vendor_url>
+
+  <action id="com.debmanager.helper.install">
+    <description>安装软件包</description>
+    <message>需要身份验证才能安装软件包</message>
+    <icon_name>system-software-install</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+  <action id="com.debmanager.helper.remove">
+    <description>卸载软件包</description>
+    <message>需要身份验证才能卸载软件包</message>
+    <icon_name>system-software-remove</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+  <action id="com.debmanager.helper.update-cache">
+    <description>更新软件包缓存</description>
+    <message>需要身份验证才能更新软件包缓存</message>
+    <icon_name>system-software-update</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
+
+  <action id="com.debmanager.helper.upgrade">
+    <description>更新系统软件包</description>
+    <message>需要身份验证才能更新系统软件包</message>
+    <icon_name>system-software-update</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+</policyconfig>

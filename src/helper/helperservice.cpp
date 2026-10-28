@@ -1,0 +1,210 @@
+#include "helperservice.h"
+#include "aptbackend.h"
+#include "packageargs.h"
+#include <QDBusConnection>
+#include <QDBusConnectionInterface>
+#include <QDBusMessage>
+#include <QDebug>
+#include <QFile>
+
+namespace
+{
+const char kErrorBusy[] = "com.debmanager.Helper1.Error.Busy";
+const char kErrorNotAuthorized[] = "com.debmanager.Helper1.Error.NotAuthorized";
+const char kErrorInvalidArgument[] = "com.debmanager.Helper1.Error.InvalidArgument";
+
+// /proc/<pid>/stat 的第 22 个字段，用于消除 PID 复用导致的身份歧义
+bool readProcessStartTime(quint32 pid, quint64 *startTime)
+{
+    QFile file(QStringLiteral("/proc/%1/stat").arg(pid));
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+
+    const QByteArray data = file.readAll();
+    const int closeParen = data.lastIndexOf(')');
+    if (closeParen < 0 || closeParen + 2 >= data.size()) {
+        return false;
+    }
+
+    // ')' 之后从第 3 个字段开始，starttime 是第 22 个字段，即这里的下标 19
+    const QList<QByteArray> fields = data.mid(closeParen + 2).split(' ');
+    if (fields.size() < 20) {
+        return false;
+    }
+
+    bool ok = false;
+    const quint64 value = fields.at(19).toULongLong(&ok);
+    if (!ok) {
+        return false;
+    }
+
+    *startTime = value;
+    return true;
+}
+}
+
+HelperService::HelperService(AptBackend *backend, QObject *parent)
+    : QObject(parent)
+    , m_backend(backend)
+    , m_authorizer(this)
+{
+    connect(m_backend, &AptBackend::output, this, &HelperService::onBackendOutput);
+    connect(m_backend, &AptBackend::finished, this, &HelperService::onBackendFinished);
+}
+
+QString HelperService::InstallLocalPackages(const QStringList &paths)
+{
+    QStringList canonicalPaths;
+    const QString error = PackageArgs::validateLocalDebPaths(paths, &canonicalPaths);
+    handleRequest(QStringLiteral("com.debmanager.helper.install"), error,
+                  [this, canonicalPaths]() {
+        return m_backend->installLocalPackages(canonicalPaths);
+    });
+    return QString();
+}
+
+QString HelperService::InstallPackages(const QStringList &names)
+{
+    const QString error = PackageArgs::validatePackageNames(names);
+    handleRequest(QStringLiteral("com.debmanager.helper.install"), error,
+                  [this, names]() {
+        return m_backend->installPackages(names);
+    });
+    return QString();
+}
+
+QString HelperService::RemovePackages(const QStringList &names, bool purge)
+{
+    const QString error = PackageArgs::validatePackageNames(names);
+    handleRequest(QStringLiteral("com.debmanager.helper.remove"), error,
+                  [this, names, purge]() {
+        return m_backend->removePackages(names, purge);
+    });
+    return QString();
+}
+
+QString HelperService::UpdateCache()
+{
+    handleRequest(QStringLiteral("com.debmanager.helper.update-cache"), QString(),
+                  [this]() {
+        return m_backend->updateCache();
+    });
+    return QString();
+}
+
+QString HelperService::Upgrade(bool distUpgrade)
+{
+    handleRequest(QStringLiteral("com.debmanager.helper.upgrade"), QString(),
+                  [this, distUpgrade]() {
+        return m_backend->upgrade(distUpgrade);
+    });
+    return QString();
+}
+
+QString HelperService::AutoRemove()
+{
+    handleRequest(QStringLiteral("com.debmanager.helper.remove"), QString(),
+                  [this]() {
+        return m_backend->autoRemove();
+    });
+    return QString();
+}
+
+void HelperService::handleRequest(const QString &action, const QString &validationError,
+                                  const std::function<QString()> &startOperation)
+{
+    if (!calledFromDBus()) {
+        return;
+    }
+
+    if (!validationError.isEmpty()) {
+        sendErrorReply(QLatin1String(kErrorInvalidArgument), validationError);
+        return;
+    }
+
+    if (m_backend->isBusy() || m_authorizing) {
+        sendErrorReply(QLatin1String(kErrorBusy), QStringLiteral("已有操作正在进行"));
+        return;
+    }
+
+    const QDBusMessage call = message();
+    const QString sender = call.service();
+
+    QDBusConnectionInterface *busInterface = QDBusConnection::systemBus().interface();
+    const uint pid = busInterface ? busInterface->servicePid(sender) : 0u;
+    quint64 startTime = 0;
+    if (pid == 0 || !readProcessStartTime(pid, &startTime)) {
+        sendErrorReply(QLatin1String(kErrorNotAuthorized), QStringLiteral("无法确定调用方进程身份"));
+        return;
+    }
+
+    setDelayedReply(true);
+    m_authorizing = true;
+
+    m_authorizer.check(action, pid, startTime,
+                       [this, call, sender, startOperation](bool authorized, const QString &error) {
+        m_authorizing = false;
+
+        if (!authorized) {
+            sendError(call, QLatin1String(kErrorNotAuthorized),
+                      error.isEmpty() ? QStringLiteral("未获得授权") : error);
+            return;
+        }
+
+        m_backend->clearLastError();
+        const QString transaction = startOperation();
+        if (transaction.isEmpty()) {
+            const QString backendError = m_backend->lastError();
+            if (!backendError.isEmpty()) {
+                sendError(call, QLatin1String(kErrorInvalidArgument), backendError);
+            } else {
+                sendError(call, QLatin1String(kErrorBusy), QStringLiteral("已有操作正在进行"));
+            }
+            return;
+        }
+
+        m_destinations.insert(transaction, sender);
+        QDBusConnection::systemBus().send(call.createReply(QVariantList{transaction}));
+    });
+}
+
+void HelperService::sendError(const QDBusMessage &call, const QString &name, const QString &message)
+{
+    QDBusConnection::systemBus().send(call.createErrorReply(name, message));
+}
+
+void HelperService::onBackendOutput(const QString &transaction, const QString &text)
+{
+    sendSignal(QStringLiteral("Output"),
+               QVariantList{transaction, text},
+               m_destinations.value(transaction));
+}
+
+void HelperService::onBackendFinished(const QString &transaction, int exitCode, const QString &message)
+{
+    sendSignal(QStringLiteral("Finished"),
+               QVariantList{transaction, exitCode, message},
+               m_destinations.value(transaction));
+    m_destinations.remove(transaction);
+}
+
+void HelperService::sendSignal(const QString &member, const QVariantList &arguments,
+                               const QString &destination)
+{
+    if (destination.isEmpty()) {
+        qWarning() << "跳过无接收方的信号:" << member;
+        return;
+    }
+
+    QDBusMessage signal = QDBusMessage::createTargetedSignal(destination,
+                                                             QStringLiteral("/com/debmanager/Helper"),
+                                                             QStringLiteral("com.debmanager.Helper1"),
+                                                             member);
+    signal.setArguments(arguments);
+
+    QDBusConnection bus = QDBusConnection::systemBus();
+    if (!bus.send(signal)) {
+        qWarning() << "发送信号失败:" << member << bus.lastError().message();
+    }
+}

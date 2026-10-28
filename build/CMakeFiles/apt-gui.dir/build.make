@@ -120,10 +120,24 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/apt-gui.dir/src/packagemanager.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /media/oi-io/data/opensource/uos-apt-gui/src/packagemanager.cpp -o CMakeFiles/apt-gui.dir/src/packagemanager.cpp.s
 
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.o: CMakeFiles/apt-gui.dir/flags.make
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.o: CMakeFiles/apt-gui.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/apt-gui.dir/src/helperclient.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/apt-gui.dir/src/helperclient.cpp.o -MF CMakeFiles/apt-gui.dir/src/helperclient.cpp.o.d -o CMakeFiles/apt-gui.dir/src/helperclient.cpp.o -c /media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp
+
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/apt-gui.dir/src/helperclient.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp > CMakeFiles/apt-gui.dir/src/helperclient.cpp.i
+
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/apt-gui.dir/src/helperclient.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp -o CMakeFiles/apt-gui.dir/src/helperclient.cpp.s
+
 CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o: CMakeFiles/apt-gui.dir/flags.make
 CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/src/mainwindow.cpp
 CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o: CMakeFiles/apt-gui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o -MF CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o.d -o CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o -c /media/oi-io/data/opensource/uos-apt-gui/src/mainwindow.cpp
 
 CMakeFiles/apt-gui.dir/src/mainwindow.cpp.i: cmake_force
@@ -137,7 +151,7 @@ CMakeFiles/apt-gui.dir/src/mainwindow.cpp.s: cmake_force
 CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o: CMakeFiles/apt-gui.dir/flags.make
 CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/src/operationprogressdialog.cpp
 CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o: CMakeFiles/apt-gui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o -MF CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o.d -o CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o -c /media/oi-io/data/opensource/uos-apt-gui/src/operationprogressdialog.cpp
 
 CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.i: cmake_force
@@ -153,6 +167,7 @@ apt__gui_OBJECTS = \
 "CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o" \
 "CMakeFiles/apt-gui.dir/src/main.cpp.o" \
 "CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o" \
+"CMakeFiles/apt-gui.dir/src/helperclient.cpp.o" \
 "CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o" \
 "CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o"
 
@@ -162,15 +177,17 @@ apt__gui_EXTERNAL_OBJECTS =
 apt-gui: CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o
 apt-gui: CMakeFiles/apt-gui.dir/src/main.cpp.o
 apt-gui: CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o
+apt-gui: CMakeFiles/apt-gui.dir/src/helperclient.cpp.o
 apt-gui: CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o
 apt-gui: CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o
 apt-gui: CMakeFiles/apt-gui.dir/build.make
 apt-gui: CMakeFiles/apt-gui.dir/compiler_depend.ts
 apt-gui: /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.15.19
+apt-gui: /usr/lib/x86_64-linux-gnu/libQt5DBus.so.5.15.19
 apt-gui: /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.15.19
 apt-gui: /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.15.19
 apt-gui: CMakeFiles/apt-gui.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable apt-gui"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/media/oi-io/data/opensource/uos-apt-gui/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable apt-gui"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/apt-gui.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

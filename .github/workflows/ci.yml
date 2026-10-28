@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  build-test:
+    name: Build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-22.04, ubuntu-24.04 ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake g++ make \
+            qtbase5-dev libqt5dbus5 \
+            dbus python3-gi libglib2.0-bin \
+            libxml2-utils desktop-file-utils
+
+      - name: Validate metadata
+        run: |
+          xmllint --noout \
+            dbus/com.debmanager.Helper1.xml \
+            packaging/com.debmanager.Helper.conf \
+            packaging/com.debmanager.helper.policy
+          desktop-file-validate packaging/apt-gui.desktop
+
+      - name: Configure
+        run: cmake -S . -B "$RUNNER_TEMP/build" -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        run: cmake --build "$RUNNER_TEMP/build" -j"$(nproc)"
+
+      - name: Security regression
+        env:
+          BUILD_DIR: ${{ runner.temp }}/build
+        run: bash tests/run_security_tests.sh
+
+      - name: GUI smoke test
+        env:
+          BUILD_DIR: ${{ runner.temp }}/build
+        run: bash tests/run_gui_smoke.sh
+
+  package:
+    name: Package .deb
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    needs: build-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake g++ make qtbase5-dev libqt5dbus5 dpkg-dev
+
+      - name: Build package
+        run: |
+          mkdir -p build-ci
+          ( cd build-ci && bash ../build/package_deb.sh )
+
+      - name: Inspect package
+        run: |
+          deb=$(ls build-ci/apt-gui_*_*.deb)
+          dpkg-deb --info "$deb"
+          dpkg-deb -c "$deb" | grep -E ' \./usr/(bin/apt-gui|lib/apt-gui/apt-helperd|lib/systemd/system/com\.debmanager\.Helper\.service|share/applications/apt-gui\.desktop|share/dbus-1/system-services/com\.debmanager\.Helper\.service|share/dbus-1/system\.d/com\.debmanager\.Helper\.conf|share/icons/hicolor/scalable/apps/apt-gui\.svg|share/polkit-1/actions/com\.debmanager\.helper\.policy)$'
+          if dpkg-deb -c "$deb" | grep -q 'com\.debmanager\.policy'; then
+            echo "旧 pkexec 策略不应再被打包" >&2
+            exit 1
+          fi
+          dpkg-deb --fsys-tarfile "$deb" \
+            | tar -xOf - ./usr/share/polkit-1/actions/com.debmanager.helper.policy \
+            | grep -q 'auth_admin_keep'
+
+      - name: Upload deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apt-gui-deb
+          path: build-ci/apt-gui_*_*.deb
+          if-no-files-found: error
+          retention-days: 14

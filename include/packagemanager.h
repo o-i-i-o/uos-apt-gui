@@ -6,6 +6,9 @@
 #include <QStringList>
 #include <QList>
 
+class HelperClient;
+class QProcess;
+
 struct DebPackage {
     QString name;
     QString version;
@@ -48,12 +51,18 @@ signals:
 private:
     DebPackage parseDpkgLine(const QString &line);
     DebPackage parseAptSearchLine(const QString &line);
+    void parseInstalledPackages(const QString &output);
+    void parseAptSearchOutput(const QString &output, const QString &searchTerm);
     void updateInstalledStatus();
     bool checkSystemCommands();
     
     QString m_lastError;
     QList<DebPackage> currentPackages;
     QList<DebPackage> onlineSearchResults;
+    HelperClient *m_helper;
+    QProcess *m_listProcess = nullptr;
+    QProcess *m_searchProcess = nullptr;
+    QString m_pendingSuccessMessage;
 };
 
 #endif

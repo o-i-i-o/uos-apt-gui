@@ -5,9 +5,11 @@ apt-gui_autogen/timestamp: /media/oi-io/data/opensource/uos-apt-gui/CMakeLists.t
   CMakeFiles/4.3.4/CMakeCXXCompiler.cmake \
   CMakeFiles/4.3.4/CMakeSystem.cmake \
   apt-gui_autogen/moc_predefs.h \
+  /media/oi-io/data/opensource/uos-apt-gui/include/helperclient.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/mainwindow.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/operationprogressdialog.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/packagemanager.h \
+  /media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp \
   /media/oi-io/data/opensource/uos-apt-gui/src/main.cpp \
   /media/oi-io/data/opensource/uos-apt-gui/src/mainwindow.cpp \
   /media/oi-io/data/opensource/uos-apt-gui/src/operationprogressdialog.cpp \
@@ -278,6 +280,7 @@ apt-gui_autogen/timestamp: /media/oi-io/data/opensource/uos-apt-gui/CMakeLists.t
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QPointer \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QString \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QStringList \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QVariantList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qabstractitemmodel.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qarraydata.h \
@@ -443,6 +446,10 @@ apt-gui_autogen/timestamp: /media/oi-io/data/opensource/uos-apt-gui/CMakeLists.t
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigExtrasMkspecDir.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigVersion.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreMacros.cmake \
+  /usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusConfig.cmake \
+  /usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusConfigExtras.cmake \
+  /usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusConfigVersion.cmake \
+  /usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusMacros.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfig.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfigVersion.cmake \
@@ -474,87 +481,25 @@ apt-gui_autogen/timestamp: /media/oi-io/data/opensource/uos-apt-gui/CMakeLists.t
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfigExtras.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfigVersion.cmake \
   /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsMacros.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeCXXCompiler.cmake.in \
-  /usr/share/cmake-4.3/Modules/CMakeCXXCompilerABI.cpp \
   /usr/share/cmake-4.3/Modules/CMakeCXXInformation.cmake \
   /usr/share/cmake-4.3/Modules/CMakeCommonLanguageInclude.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeCompilerIdDetection.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeDetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeDetermineCompilerSupport.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeDetermineSystem.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake \
   /usr/share/cmake-4.3/Modules/CMakeGenericSystem.cmake \
   /usr/share/cmake-4.3/Modules/CMakeInitializeConfigs.cmake \
   /usr/share/cmake-4.3/Modules/CMakeLanguageInformation.cmake \
   /usr/share/cmake-4.3/Modules/CMakeParseArguments.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeParseImplicitIncludeInfo.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeParseImplicitLinkInfo.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeParseLibraryArchitecture.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeSystem.cmake.in \
   /usr/share/cmake-4.3/Modules/CMakeSystemSpecificInformation.cmake \
   /usr/share/cmake-4.3/Modules/CMakeSystemSpecificInitialize.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeTestCXXCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeTestCompilerCommon.cmake \
-  /usr/share/cmake-4.3/Modules/CMakeUnixFindMake.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/ADSP-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/ARMCC-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/ARMClang-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/AppleClang-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Borland-DetermineCompiler.cmake \
   /usr/share/cmake-4.3/Modules/Compiler/CMakeCommonCompilerMacros.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Clang-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Clang-DetermineCompilerInternal.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Cray-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/CrayClang-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Diab-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Embarcadero-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Fujitsu-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/GHS-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake \
   /usr/share/cmake-4.3/Modules/Compiler/GNU-CXX.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/GNU-FindBinUtils.cmake \
   /usr/share/cmake-4.3/Modules/Compiler/GNU.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/HP-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/IAR-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Intel-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/MSVC-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/NVHPC-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/NVIDIA-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/OrangeC-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/PGI-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/PathScale-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Renesas-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/SCO-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/TI-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/TIClang-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Tasking-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/Watcom-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/XL-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake \
-  /usr/share/cmake-4.3/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake \
   /usr/share/cmake-4.3/Modules/Internal/CMakeCXXLinkerInformation.cmake \
   /usr/share/cmake-4.3/Modules/Internal/CMakeCommonLinkerInformation.cmake \
-  /usr/share/cmake-4.3/Modules/Internal/CMakeDetermineLinkerId.cmake \
-  /usr/share/cmake-4.3/Modules/Internal/CMakeInspectCXXLinker.cmake \
-  /usr/share/cmake-4.3/Modules/Internal/FeatureTesting.cmake \
   /usr/share/cmake-4.3/Modules/Linker/GNU-CXX.cmake \
   /usr/share/cmake-4.3/Modules/Linker/GNU.cmake \
+  /usr/share/cmake-4.3/Modules/MacroAddFileDependencies.cmake \
   /usr/share/cmake-4.3/Modules/Platform/Linker/GNU.cmake \
   /usr/share/cmake-4.3/Modules/Platform/Linker/Linux-GNU-CXX.cmake \
   /usr/share/cmake-4.3/Modules/Platform/Linker/Linux-GNU.cmake \
-  /usr/share/cmake-4.3/Modules/Platform/Linux-Determine-CXX.cmake \
   /usr/share/cmake-4.3/Modules/Platform/Linux-GNU-CXX.cmake \
   /usr/share/cmake-4.3/Modules/Platform/Linux-GNU.cmake \
   /usr/share/cmake-4.3/Modules/Platform/Linux-Initialize.cmake \
@@ -562,9 +507,11 @@ apt-gui_autogen/timestamp: /media/oi-io/data/opensource/uos-apt-gui/CMakeLists.t
   /usr/share/cmake-4.3/Modules/Platform/UnixPaths.cmake
 
 CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o: apt-gui_autogen/mocs_compilation.cpp \
+  /media/oi-io/data/opensource/uos-apt-gui/include/helperclient.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/mainwindow.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/operationprogressdialog.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/packagemanager.h \
+  apt-gui_autogen/6YEA5652QU/moc_helperclient.cpp \
   apt-gui_autogen/6YEA5652QU/moc_mainwindow.cpp \
   apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp \
   apt-gui_autogen/6YEA5652QU/moc_packagemanager.cpp \
@@ -804,8 +751,10 @@ CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o: apt-gui_autogen/m
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QObject \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QPointer \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QString \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QStringList \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QVariantList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qabstractitemmodel.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qarraydata.h \
@@ -849,6 +798,7 @@ CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o: apt-gui_autogen/m
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qpair.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qpoint.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qpointer.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qprocessordetection.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qrect.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qrefcount.h \
@@ -956,6 +906,325 @@ CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o: apt-gui_autogen/m
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtwidgets-config.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtwidgetsglobal.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qwidget.h \
+  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+  /usr/include/x86_64-linux-gnu/sys/select.h \
+  /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
+  /usr/include/x86_64-linux-gnu/sys/types.h \
+  /usr/lib/gcc/x86_64-linux-gnu/15/include/limits.h \
+  /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
+  /usr/lib/gcc/x86_64-linux-gnu/15/include/stddef.h \
+  /usr/lib/gcc/x86_64-linux-gnu/15/include/stdint.h \
+  /usr/lib/gcc/x86_64-linux-gnu/15/include/syslimits.h
+
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp \
+  /media/oi-io/data/opensource/uos-apt-gui/include/helperclient.h \
+  /usr/include/alloca.h \
+  /usr/include/asm-generic/bitsperlong.h \
+  /usr/include/asm-generic/errno-base.h \
+  /usr/include/asm-generic/errno.h \
+  /usr/include/asm-generic/int-ll64.h \
+  /usr/include/asm-generic/posix_types.h \
+  /usr/include/asm-generic/types.h \
+  /usr/include/assert.h \
+  /usr/include/c++/15/algorithm \
+  /usr/include/c++/15/atomic \
+  /usr/include/c++/15/backward/auto_ptr.h \
+  /usr/include/c++/15/backward/binders.h \
+  /usr/include/c++/15/bit \
+  /usr/include/c++/15/bits/algorithmfwd.h \
+  /usr/include/c++/15/bits/align.h \
+  /usr/include/c++/15/bits/alloc_traits.h \
+  /usr/include/c++/15/bits/allocated_ptr.h \
+  /usr/include/c++/15/bits/allocator.h \
+  /usr/include/c++/15/bits/atomic_base.h \
+  /usr/include/c++/15/bits/atomic_lockfree_defines.h \
+  /usr/include/c++/15/bits/basic_string.h \
+  /usr/include/c++/15/bits/basic_string.tcc \
+  /usr/include/c++/15/bits/char_traits.h \
+  /usr/include/c++/15/bits/charconv.h \
+  /usr/include/c++/15/bits/chrono.h \
+  /usr/include/c++/15/bits/concept_check.h \
+  /usr/include/c++/15/bits/cpp_type_traits.h \
+  /usr/include/c++/15/bits/cxxabi_forced.h \
+  /usr/include/c++/15/bits/cxxabi_init_exception.h \
+  /usr/include/c++/15/bits/erase_if.h \
+  /usr/include/c++/15/bits/exception.h \
+  /usr/include/c++/15/bits/exception_defines.h \
+  /usr/include/c++/15/bits/exception_ptr.h \
+  /usr/include/c++/15/bits/functexcept.h \
+  /usr/include/c++/15/bits/functional_hash.h \
+  /usr/include/c++/15/bits/hash_bytes.h \
+  /usr/include/c++/15/bits/invoke.h \
+  /usr/include/c++/15/bits/ios_base.h \
+  /usr/include/c++/15/bits/list.tcc \
+  /usr/include/c++/15/bits/locale_classes.h \
+  /usr/include/c++/15/bits/locale_classes.tcc \
+  /usr/include/c++/15/bits/localefwd.h \
+  /usr/include/c++/15/bits/memoryfwd.h \
+  /usr/include/c++/15/bits/move.h \
+  /usr/include/c++/15/bits/nested_exception.h \
+  /usr/include/c++/15/bits/new_allocator.h \
+  /usr/include/c++/15/bits/ostream_insert.h \
+  /usr/include/c++/15/bits/parse_numbers.h \
+  /usr/include/c++/15/bits/postypes.h \
+  /usr/include/c++/15/bits/predefined_ops.h \
+  /usr/include/c++/15/bits/ptr_traits.h \
+  /usr/include/c++/15/bits/range_access.h \
+  /usr/include/c++/15/bits/refwrap.h \
+  /usr/include/c++/15/bits/requires_hosted.h \
+  /usr/include/c++/15/bits/shared_ptr.h \
+  /usr/include/c++/15/bits/shared_ptr_atomic.h \
+  /usr/include/c++/15/bits/shared_ptr_base.h \
+  /usr/include/c++/15/bits/std_abs.h \
+  /usr/include/c++/15/bits/std_function.h \
+  /usr/include/c++/15/bits/stl_algo.h \
+  /usr/include/c++/15/bits/stl_algobase.h \
+  /usr/include/c++/15/bits/stl_bvector.h \
+  /usr/include/c++/15/bits/stl_construct.h \
+  /usr/include/c++/15/bits/stl_function.h \
+  /usr/include/c++/15/bits/stl_heap.h \
+  /usr/include/c++/15/bits/stl_iterator.h \
+  /usr/include/c++/15/bits/stl_iterator_base_funcs.h \
+  /usr/include/c++/15/bits/stl_iterator_base_types.h \
+  /usr/include/c++/15/bits/stl_list.h \
+  /usr/include/c++/15/bits/stl_map.h \
+  /usr/include/c++/15/bits/stl_multimap.h \
+  /usr/include/c++/15/bits/stl_numeric.h \
+  /usr/include/c++/15/bits/stl_pair.h \
+  /usr/include/c++/15/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/15/bits/stl_relops.h \
+  /usr/include/c++/15/bits/stl_tempbuf.h \
+  /usr/include/c++/15/bits/stl_tree.h \
+  /usr/include/c++/15/bits/stl_uninitialized.h \
+  /usr/include/c++/15/bits/stl_vector.h \
+  /usr/include/c++/15/bits/stream_iterator.h \
+  /usr/include/c++/15/bits/streambuf.tcc \
+  /usr/include/c++/15/bits/streambuf_iterator.h \
+  /usr/include/c++/15/bits/stringfwd.h \
+  /usr/include/c++/15/bits/uniform_int_dist.h \
+  /usr/include/c++/15/bits/unique_ptr.h \
+  /usr/include/c++/15/bits/uses_allocator.h \
+  /usr/include/c++/15/bits/utility.h \
+  /usr/include/c++/15/bits/vector.tcc \
+  /usr/include/c++/15/bits/version.h \
+  /usr/include/c++/15/cctype \
+  /usr/include/c++/15/cerrno \
+  /usr/include/c++/15/chrono \
+  /usr/include/c++/15/clocale \
+  /usr/include/c++/15/cstddef \
+  /usr/include/c++/15/cstdint \
+  /usr/include/c++/15/cstdio \
+  /usr/include/c++/15/cstdlib \
+  /usr/include/c++/15/ctime \
+  /usr/include/c++/15/cwchar \
+  /usr/include/c++/15/debug/assertions.h \
+  /usr/include/c++/15/debug/debug.h \
+  /usr/include/c++/15/exception \
+  /usr/include/c++/15/ext/aligned_buffer.h \
+  /usr/include/c++/15/ext/alloc_traits.h \
+  /usr/include/c++/15/ext/atomicity.h \
+  /usr/include/c++/15/ext/concurrence.h \
+  /usr/include/c++/15/ext/numeric_traits.h \
+  /usr/include/c++/15/ext/string_conversions.h \
+  /usr/include/c++/15/ext/type_traits.h \
+  /usr/include/c++/15/functional \
+  /usr/include/c++/15/initializer_list \
+  /usr/include/c++/15/iosfwd \
+  /usr/include/c++/15/iterator \
+  /usr/include/c++/15/limits \
+  /usr/include/c++/15/list \
+  /usr/include/c++/15/map \
+  /usr/include/c++/15/memory \
+  /usr/include/c++/15/new \
+  /usr/include/c++/15/numeric \
+  /usr/include/c++/15/ratio \
+  /usr/include/c++/15/stdexcept \
+  /usr/include/c++/15/stdlib.h \
+  /usr/include/c++/15/streambuf \
+  /usr/include/c++/15/string \
+  /usr/include/c++/15/system_error \
+  /usr/include/c++/15/tuple \
+  /usr/include/c++/15/type_traits \
+  /usr/include/c++/15/typeinfo \
+  /usr/include/c++/15/utility \
+  /usr/include/c++/15/vector \
+  /usr/include/ctype.h \
+  /usr/include/endian.h \
+  /usr/include/errno.h \
+  /usr/include/features-time64.h \
+  /usr/include/features.h \
+  /usr/include/limits.h \
+  /usr/include/linux/errno.h \
+  /usr/include/linux/limits.h \
+  /usr/include/linux/posix_types.h \
+  /usr/include/linux/sched/types.h \
+  /usr/include/linux/stddef.h \
+  /usr/include/linux/types.h \
+  /usr/include/locale.h \
+  /usr/include/pthread.h \
+  /usr/include/sched.h \
+  /usr/include/stdc-predef.h \
+  /usr/include/stdint.h \
+  /usr/include/stdio.h \
+  /usr/include/stdlib.h \
+  /usr/include/string.h \
+  /usr/include/strings.h \
+  /usr/include/time.h \
+  /usr/include/wchar.h \
+  /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
+  /usr/include/x86_64-linux-gnu/asm/errno.h \
+  /usr/include/x86_64-linux-gnu/asm/posix_types.h \
+  /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
+  /usr/include/x86_64-linux-gnu/asm/types.h \
+  /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
+  /usr/include/x86_64-linux-gnu/bits/byteswap.h \
+  /usr/include/x86_64-linux-gnu/bits/cpu-set.h \
+  /usr/include/x86_64-linux-gnu/bits/endian.h \
+  /usr/include/x86_64-linux-gnu/bits/endianness.h \
+  /usr/include/x86_64-linux-gnu/bits/errno.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+  /usr/include/x86_64-linux-gnu/bits/floatn.h \
+  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+  /usr/include/x86_64-linux-gnu/bits/local_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/locale.h \
+  /usr/include/x86_64-linux-gnu/bits/long-double.h \
+  /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
+  /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
+  /usr/include/x86_64-linux-gnu/bits/sched.h \
+  /usr/include/x86_64-linux-gnu/bits/select.h \
+  /usr/include/x86_64-linux-gnu/bits/setjmp.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
+  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
+  /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
+  /usr/include/x86_64-linux-gnu/bits/time.h \
+  /usr/include/x86_64-linux-gnu/bits/time64.h \
+  /usr/include/x86_64-linux-gnu/bits/timesize.h \
+  /usr/include/x86_64-linux-gnu/bits/timex.h \
+  /usr/include/x86_64-linux-gnu/bits/types.h \
+  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
+  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
+  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+  /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
+  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
+  /usr/include/x86_64-linux-gnu/bits/wchar.h \
+  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/atomic_word.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/c++allocator.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/c++config.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/c++locale.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/cpu_defines.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/error_constants.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/gthr-default.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/gthr.h \
+  /usr/include/x86_64-linux-gnu/c++/15/bits/os_defines.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QDebug \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QObject \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QString \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QStringList \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QVariant \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QVariantList \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qarraydata.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic_cxx11.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qbasicatomic.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qbytearray.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qbytearraylist.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qchar.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcompilerdetection.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qconfig.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontainerfwd.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontainertools_impl.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontiguouscache.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qflags.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qgenericatomic.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qglobalstatic.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qhash.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qhashfunctions.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qiodevice.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qiterator.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qlist.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qlocale.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qmap.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qnamespace.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qnumeric.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qobject.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qobject_impl.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qpair.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qprocessordetection.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qrefcount.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qregexp.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qscopedpointer.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qset.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qshareddata.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qsharedpointer.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qsharedpointer_impl.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstring.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringalgorithms.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringlist.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringliteral.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringmatcher.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringview.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qsysinfo.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qsystemdetection.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qtcore-config.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qtypeinfo.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qvarlengtharray.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qvector.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qversiontagging.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusConnection \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusError \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusMessage \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusPendingCall \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusPendingCallWatcher \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbusconnection.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbuserror.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbusmessage.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbuspendingcall.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtDBus/qtdbusglobal.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
   /usr/include/x86_64-linux-gnu/sys/select.h \
   /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
@@ -1206,6 +1475,7 @@ CMakeFiles/apt-gui.dir/src/main.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QObject \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QPointer \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QString \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QStringList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QTextCodec \
@@ -1254,6 +1524,7 @@ CMakeFiles/apt-gui.dir/src/main.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qpair.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qpoint.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qpointer.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qprocessordetection.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qrect.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qrefcount.h \
@@ -1616,6 +1887,7 @@ CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o: /media/oi-io/data/opensource/uos-ap
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QObject \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QPointer \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QString \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QStringList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QTimer \
@@ -1663,6 +1935,7 @@ CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o: /media/oi-io/data/opensource/uos-ap
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qpair.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qpoint.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qpointer.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qprocessordetection.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qrect.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qrefcount.h \
@@ -2150,6 +2423,7 @@ CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o: /media/oi-io/data/open
   /usr/lib/gcc/x86_64-linux-gnu/15/include/syslimits.h
 
 CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o: /media/oi-io/data/opensource/uos-apt-gui/src/packagemanager.cpp \
+  /media/oi-io/data/opensource/uos-apt-gui/include/helperclient.h \
   /media/oi-io/data/opensource/uos-apt-gui/include/packagemanager.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -2385,15 +2659,16 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o: /media/oi-io/data/opensource/uo
   /usr/include/x86_64-linux-gnu/c++/15/bits/os_defines.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/QCoreApplication \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QDateTime \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/QDir \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QFileInfo \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QObject \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QProcess \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QStandardPaths \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QString \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QStringList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QTimer \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/QVariantList \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qarraydata.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic.h \
@@ -2407,11 +2682,7 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o: /media/oi-io/data/opensource/uo
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qconfig.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontainerfwd.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontainertools_impl.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcoreapplication.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcoreevent.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qdatetime.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qdir.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qeventloop.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qfile.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qfiledevice.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qfileinfo.h \
@@ -2425,6 +2696,7 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o: /media/oi-io/data/opensource/uo
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qiterator.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qlist.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qmap.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qnamespace.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qnumeric.h \
@@ -2439,6 +2711,7 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o: /media/oi-io/data/opensource/uo
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qregexp.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qscopedpointer.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qshareddata.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qstandardpaths.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qstring.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringalgorithms.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringlist.h \
@@ -2450,6 +2723,7 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o: /media/oi-io/data/opensource/uo
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtcore-config.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtimer.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtypeinfo.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qvarlengtharray.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qvector.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qversiontagging.h \
@@ -2479,6 +2753,7 @@ apt-gui: /lib64/ld-linux-x86-64.so.2 \
   /usr/lib/x86_64-linux-gnu/libGLX.so.0 \
   /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0 \
   /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.15.19 \
+  /usr/lib/x86_64-linux-gnu/libQt5DBus.so.5.15.19 \
   /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.15.19 \
   /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.15.19 \
   /usr/lib/x86_64-linux-gnu/libX11.so.6 \
@@ -2490,6 +2765,7 @@ apt-gui: /lib64/ld-linux-x86-64.so.2 \
   /usr/lib/x86_64-linux-gnu/libbz2.so.1.0 \
   /usr/lib/x86_64-linux-gnu/libc.so.6 \
   /usr/lib/x86_64-linux-gnu/libc_nonshared.a \
+  /usr/lib/x86_64-linux-gnu/libdbus-1.so.3 \
   /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3 \
   /usr/lib/x86_64-linux-gnu/libfreetype.so.6 \
   /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 \
@@ -2504,21 +2780,29 @@ apt-gui: /lib64/ld-linux-x86-64.so.2 \
   /usr/lib/x86_64-linux-gnu/libpcre2-16.so.0 \
   /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 \
   /usr/lib/x86_64-linux-gnu/libpng16.so.16 \
+  /usr/lib/x86_64-linux-gnu/libsystemd.so.0 \
   /usr/lib/x86_64-linux-gnu/libxcb.so.1 \
   /usr/lib/x86_64-linux-gnu/libz.so.1 \
   /usr/lib/x86_64-linux-gnu/libzstd.so.1 \
   CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o \
+  CMakeFiles/apt-gui.dir/src/helperclient.cpp.o \
   CMakeFiles/apt-gui.dir/src/main.cpp.o \
   CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o \
   CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o \
   CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o
 
 
+CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o:
+
 CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o:
 
 CMakeFiles/apt-gui.dir/src/main.cpp.o:
 
+CMakeFiles/apt-gui.dir/src/helperclient.cpp.o:
+
 /usr/lib/x86_64-linux-gnu/libpng16.so.16:
+
+/usr/lib/x86_64-linux-gnu/libpcre2-16.so.0:
 
 CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o:
 
@@ -2536,6 +2820,8 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o:
 
 /usr/lib/x86_64-linux-gnu/libdouble-conversion.so.3:
 
+/usr/lib/x86_64-linux-gnu/libdbus-1.so.3:
+
 /usr/lib/x86_64-linux-gnu/libbrotlidec.so.1:
 
 /usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1:
@@ -2545,6 +2831,8 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o:
 /usr/lib/x86_64-linux-gnu/libXau.so.6:
 
 /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.15.19:
+
+/usr/lib/x86_64-linux-gnu/libQt5DBus.so.5.15.19:
 
 /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.15.19:
 
@@ -2570,9 +2858,13 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o:
 
 /lib64/ld-linux-x86-64.so.2:
 
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qstandardpaths.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qdatetime.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QDir:
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QStandardPaths:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QFileInfo:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/QDateTime:
 
@@ -2592,85 +2884,33 @@ CMakeFiles/apt-gui.dir/src/packagemanager.cpp.o:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextcodec.h:
 
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/qtdbusglobal.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbuspendingcall.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbusmessage.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbuserror.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusPendingCallWatcher:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusMessage:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusError:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusConnection:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QDebug:
+
 /usr/lib/gcc/x86_64-linux-gnu/15/include/stdint.h:
-
-/usr/lib/x86_64-linux-gnu/libmvec.so.1:
-
-/usr/include/x86_64-linux-gnu/sys/types.h:
-
-/usr/include/x86_64-linux-gnu/sys/select.h:
-
-/usr/include/x86_64-linux-gnu/bits/waitflags.h:
-
-/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/select.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
-
-/usr/include/x86_64-linux-gnu/bits/local_lim.h:
-
-/usr/include/x86_64-linux-gnu/bits/byteswap.h:
-
-/usr/include/stdint.h:
-
-/usr/include/linux/limits.h:
-
-/usr/include/limits.h:
-
-/usr/include/c++/15/system_error:
-
-/usr/include/c++/15/ctime:
-
-/usr/include/c++/15/bits/parse_numbers.h:
-
-/usr/include/alloca.h:
-
-apt-gui_autogen/6YEA5652QU/moc_packagemanager.cpp:
-
-apt-gui_autogen/6YEA5652QU/moc_mainwindow.cpp:
-
-/usr/lib/x86_64-linux-gnu/libicui18n.so.78:
-
-apt-gui_autogen/mocs_compilation.cpp:
-
-/usr/lib/x86_64-linux-gnu/libpcre2-8.so.0:
-
-/usr/share/cmake-4.3/Modules/Platform/UnixPaths.cmake:
-
-/usr/share/cmake-4.3/Modules/Platform/Linux-Initialize.cmake:
-
-/usr/share/cmake-4.3/Modules/Platform/Linux-GNU.cmake:
-
-/usr/lib/x86_64-linux-gnu/libX11.so.6:
-
-/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
-
-/usr/share/cmake-4.3/Modules/Platform/Linux-GNU-CXX.cmake:
-
-/usr/share/cmake-4.3/Modules/Platform/Linux-Determine-CXX.cmake:
-
-/usr/lib/x86_64-linux-gnu/libGLX.so.0:
-
-/usr/share/cmake-4.3/Modules/Linker/GNU.cmake:
-
-/usr/include/x86_64-linux-gnu/bits/stdint-least.h:
-
-/usr/share/cmake-4.3/Modules/Internal/CMakeDetermineLinkerId.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qfile.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
-
-/usr/share/cmake-4.3/Modules/Platform/Linux.cmake:
-
-/usr/include/asm-generic/errno.h:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfig.cmake:
 
@@ -2684,17 +2924,11 @@ apt-gui_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/QTimer:
 
-/usr/share/cmake-4.3/Modules/Internal/FeatureTesting.cmake:
-
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QFileDialog:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractbutton.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
-
-/usr/include/c++/15/chrono:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QString:
 
 /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
 
@@ -2703,6 +2937,8 @@ apt-gui_autogen/mocs_compilation.cpp:
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QGifPlugin.cmake:
 
 /usr/include/x86_64-linux-gnu/c++/15/bits/cpu_defines.h:
+
+/usr/share/cmake-4.3/Modules/MacroAddFileDependencies.cmake:
 
 /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
 
@@ -2722,21 +2958,21 @@ apt-gui_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
-/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
-
-/usr/include/x86_64-linux-gnu/bits/locale.h:
-
 /usr/include/c++/15/bits/basic_ios.h:
 
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
 
 /usr/include/x86_64-linux-gnu/bits/getopt_core.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
+
 CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qglobalstatic.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qeventloop.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qcontiguouscache.h:
 
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
 
@@ -2745,12 +2981,6 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtabbar.h:
-
-/usr/include/linux/sched/types.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qslider.h:
-
-/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
 /usr/include/x86_64-linux-gnu/bits/environments.h:
 
@@ -2763,8 +2993,6 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qtouchdevice.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/GHS-DetermineCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/bits/confname.h:
 
@@ -2786,12 +3014,6 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
-/usr/include/c++/15/debug/assertions.h:
-
-/usr/include/c++/15/ratio:
-
-/usr/include/c++/15/bits/stl_map.h:
-
 /usr/include/linux/posix_types.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QScrollBar:
@@ -2806,6 +3028,10 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfigExtras.cmake:
 
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QString:
+
+/usr/include/c++/15/chrono:
+
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
 
 /usr/include/c++/15/string_view:
@@ -2814,13 +3040,15 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/bits/long-double.h:
 
-/usr/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:
-
 /usr/include/c++/15/string:
+
+/usr/include/c++/15/ctime:
 
 /usr/include/c++/15/optional:
 
 /usr/include/c++/15/bits/predefined_ops.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h:
 
 /usr/include/c++/15/numeric:
 
@@ -2831,10 +3059,6 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 /usr/include/c++/15/iterator:
 
 /usr/include/x86_64-linux-gnu/c++/15/bits/gthr-default.h:
-
-/usr/lib/x86_64-linux-gnu/libz.so.1:
-
-/usr/include/c++/15/functional:
 
 /usr/share/cmake-4.3/Modules/CMakeCommonLanguageInclude.cmake:
 
@@ -2850,6 +3074,8 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/linux/types.h:
 
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qstringmatcher.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qsizepolicy.h:
 
 /usr/include/x86_64-linux-gnu/asm/types.h:
@@ -2862,9 +3088,7 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/c++/15/bits/list.tcc:
 
-/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
-
-/usr/include/wchar.h:
+/usr/include/c++/15/cerrno:
 
 /usr/include/c++/15/bits/ios_base.h:
 
@@ -2886,12 +3110,6 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/c++/15/bits/stl_vector.h:
 
-/usr/share/cmake-4.3/Modules/Platform/Linker/Linux-GNU.cmake:
-
-/usr/include/pthread.h:
-
-/usr/share/cmake-4.3/Modules/Internal/CMakeInspectCXXLinker.cmake:
-
 /usr/include/c++/15/bit:
 
 /usr/include/c++/15/bits/allocator.h:
@@ -2900,17 +3118,15 @@ CMakeFiles/4.3.4/CMakeCXXCompiler.cmake:
 
 /usr/include/c++/15/initializer_list:
 
-CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o:
+/usr/lib/x86_64-linux-gnu/libicui18n.so.78:
 
-/usr/share/cmake-4.3/Modules/CMakeDetermineSystem.cmake:
+apt-gui_autogen/mocs_compilation.cpp:
 
 /usr/include/c++/15/bits/stringfwd.h:
 
 /usr/include/c++/15/bits/basic_string.tcc:
 
 /usr/include/c++/15/bits/streambuf.tcc:
-
-/usr/share/cmake-4.3/Modules/Compiler/Cray-DetermineCompiler.cmake:
 
 /usr/include/c++/15/bits/cxxabi_init_exception.h:
 
@@ -2940,23 +3156,37 @@ CMakeFiles/4.3.4/CMakeSystem.cmake:
 
 /usr/share/cmake-4.3/Modules/CMakeGenericSystem.cmake:
 
+/usr/include/x86_64-linux-gnu/bits/select.h:
+
 /usr/include/c++/15/bits/basic_ios.tcc:
 
 /usr/include/c++/15/bits/stl_numeric.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/GNU-FindBinUtils.cmake:
+/usr/include/x86_64-linux-gnu/bits/uio_lim.h:
+
+/usr/include/c++/15/ext/type_traits.h:
+
+/usr/include/pthread.h:
+
+/usr/share/cmake-4.3/Modules/Platform/Linker/Linux-GNU.cmake:
 
 /usr/include/c++/15/pstl/execution_defs.h:
 
 /usr/include/c++/15/bits/sat_arith.h:
 
+/media/oi-io/data/opensource/uos-apt-gui/include/helperclient.h:
+
 /media/oi-io/data/opensource/uos-apt-gui/src/operationprogressdialog.cpp:
 
 /usr/share/cmake-4.3/Modules/CMakeParseArguments.cmake:
 
+/usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+
 /usr/include/c++/15/bits/functional_hash.h:
 
 /usr/include/c++/15/compare:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QVariant:
 
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
@@ -2970,19 +3200,11 @@ CMakeFiles/4.3.4/CMakeSystem.cmake:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qtransform.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QPointer:
-
-/usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
-
-/usr/include/c++/15/bits/atomic_base.h:
-
-/usr/share/cmake-4.3/Modules/Linker/GNU-CXX.cmake:
-
-/usr/include/x86_64-linux-gnu/qt5/QtGui/qrgb.h:
-
 /usr/include/c++/15/bits/formatfwd.h:
 
 /usr/include/stdc-predef.h:
+
+apt-gui_autogen/6YEA5652QU/moc_mainwindow.cpp:
 
 /usr/include/c++/15/bits/stl_iterator_base_types.h:
 
@@ -3004,47 +3226,11 @@ apt-gui_autogen/moc_predefs.h:
 
 /usr/include/c++/15/bits/version.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/PathScale-DetermineCompiler.cmake:
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QPointer:
 
-/usr/include/asm-generic/errno-base.h:
+/usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
 
-/usr/include/asm-generic/types.h:
-
-/usr/include/asm-generic/bitsperlong.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qboxlayout.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qitemselectionmodel.h:
-
-/usr/include/c++/15/tuple:
-
-/usr/include/x86_64-linux-gnu/bits/wchar.h:
-
-/usr/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake:
-
-/usr/include/c++/15/bits/ranges_util.h:
-
-/usr/include/c++/15/bits/ostream.h:
-
-/usr/include/c++/15/bits/stl_raw_storage_iter.h:
-
-/usr/include/c++/15/array:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTextEdit:
-
-/usr/include/c++/15/bits/locale_classes.tcc:
-
-/usr/lib/x86_64-linux-gnu/libm.so.6:
-
-/usr/include/c++/15/bits/hash_bytes.h:
-
-/usr/include/c++/15/algorithm:
-
-/usr/include/x86_64-linux-gnu/qt5/QtGui/qkeysequence.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtGui/qpolygon.h:
+/usr/include/c++/15/bits/atomic_base.h:
 
 /usr/lib/x86_64-linux-gnu/libc_nonshared.a:
 
@@ -3064,9 +3250,21 @@ apt-gui_autogen/moc_predefs.h:
 
 /usr/include/c++/15/exception:
 
+/usr/lib/x86_64-linux-gnu/libsystemd.so.0:
+
 /media/oi-io/data/opensource/uos-apt-gui/include/operationprogressdialog.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qhashfunctions.h:
+
+/usr/include/c++/15/debug/assertions.h:
+
+/media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp:
+
+/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
+
+/usr/bin/cmake:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QProgressBar:
 
 /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.15.19:
 
@@ -3078,11 +3276,17 @@ apt-gui_autogen/moc_predefs.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake:
-
 /usr/include/c++/15/bits/ranges_base.h:
 
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qslider.h:
+
+/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+
+/usr/include/linux/sched/types.h:
+
 /usr/include/c++/15/stdexcept:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/qdbusconnection.h:
 
 /usr/include/c++/15/atomic:
 
@@ -3090,17 +3294,19 @@ apt-gui_autogen/moc_predefs.h:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigExtras.cmake:
 
+/usr/include/c++/15/bits/stl_map.h:
+
+/usr/include/c++/15/ratio:
+
 /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/c++/15/bits/invoke.h:
 
 /usr/include/c++/15/bits/ostream_insert.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/ARMClang-DetermineCompiler.cmake:
-
 /usr/include/c++/15/bits/stream_iterator.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/Tasking-DetermineCompiler.cmake:
+/usr/include/x86_64-linux-gnu/sys/select.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtwidgets-config.h:
 
@@ -3108,23 +3314,63 @@ apt-gui_autogen/moc_predefs.h:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QEglFSEmulatorIntegrationPlugin.cmake:
 
-/usr/share/cmake-4.3/Modules/CMakeCXXCompiler.cmake.in:
-
 /usr/include/c++/15/bits/stl_tempbuf.h:
+
+/usr/include/c++/15/climits:
+
+/usr/include/c++/15/bits/vector.tcc:
+
+/usr/include/locale.h:
+
+/usr/include/c++/15/bits/allocated_ptr.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qpointer.h:
+
+/usr/include/c++/15/bits/stl_uninitialized.h:
+
+/usr/include/c++/15/bits/shared_ptr_base.h:
+
+/usr/include/c++/15/bits/stl_multimap.h:
+
+/usr/include/c++/15/bits/locale_classes.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/asm-generic/types.h:
+
+/usr/include/asm-generic/bitsperlong.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qboxlayout.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qitemselectionmodel.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtDBus/QDBusPendingCall:
+
+/usr/include/c++/15/tuple:
+
+/usr/include/c++/15/bits/ranges_util.h:
+
+/usr/include/c++/15/bits/ostream.h:
+
+/usr/include/c++/15/bits/stl_raw_storage_iter.h:
+
+/usr/include/c++/15/array:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTextEdit:
 
 /usr/include/c++/15/bits/nested_exception.h:
 
 /usr/include/c++/15/bits/memoryfwd.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/Fujitsu-DetermineCompiler.cmake:
 
 /usr/include/asm-generic/int-ll64.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qpoint.h:
 
 /usr/include/c++/15/typeinfo:
-
-/usr/share/cmake-4.3/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake:
 
 /usr/include/c++/15/ios:
 
@@ -3158,37 +3404,19 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake:
 
-/usr/include/c++/15/bits/locale_classes.h:
+/usr/lib/x86_64-linux-gnu/libm.so.6:
 
-/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+/usr/include/c++/15/bits/hash_bytes.h:
 
-/usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
+/usr/include/c++/15/algorithm:
 
-/usr/bin/cmake:
+/usr/include/x86_64-linux-gnu/qt5/QtGui/qkeysequence.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QProgressBar:
+/usr/include/x86_64-linux-gnu/qt5/QtGui/qpolygon.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qpointer.h:
-
-/usr/include/c++/15/bits/stl_uninitialized.h:
-
-/usr/include/c++/15/bits/shared_ptr_base.h:
-
-/usr/include/c++/15/bits/stl_multimap.h:
-
-/usr/include/c++/15/climits:
-
-/usr/include/c++/15/bits/vector.tcc:
-
-/usr/include/locale.h:
-
-/usr/include/c++/15/bits/allocated_ptr.h:
+/usr/include/c++/15/bits/locale_classes.tcc:
 
 /usr/include/ctype.h:
-
-/usr/include/stdlib.h:
-
-/usr/include/c++/15/bits/locale_facets.tcc:
 
 /usr/include/c++/15/bits/stl_tree.h:
 
@@ -3216,17 +3444,15 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/include/limits.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QTextCodec:
+/usr/include/x86_64-linux-gnu/qt5/QtGui/qrgb.h:
 
-/usr/include/x86_64-linux-gnu/c++/15/bits/ctype_inline.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/MSVC-DetermineCompiler.cmake:
+/usr/share/cmake-4.3/Modules/Linker/GNU-CXX.cmake:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QIbusPlatformInputContextPlugin.cmake:
 
-/usr/share/cmake-4.3/Modules/Platform/Linker/Linux-GNU-CXX.cmake:
-
 /usr/include/c++/15/limits:
+
+/usr/share/cmake-4.3/Modules/Platform/Linker/Linux-GNU-CXX.cmake:
 
 /usr/include/x86_64-linux-gnu/asm/unistd.h:
 
@@ -3239,6 +3465,12 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 /usr/include/c++/15/bits/node_handle.h:
 
 /usr/include/x86_64-linux-gnu/asm/posix_types.h:
+
+/usr/include/c++/15/bits/postypes.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qbytearray.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlineedit.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
 
@@ -3270,6 +3502,8 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/c++/15/bits/std_function.h:
 
+/usr/include/x86_64-linux-gnu/bits/local_lim.h:
+
 /usr/include/c++/15/pstl/glue_numeric_defs.h:
 
 /usr/include/c++/15/clocale:
@@ -3282,27 +3516,21 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h:
 
+/usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreMacros.cmake:
+
+/usr/include/c++/15/vector:
+
 /usr/include/c++/15/new:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qiodevice.h:
 
 /usr/include/c++/15/memory:
 
-/usr/include/endian.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qlocale.h:
-
 /usr/include/c++/15/bits/stl_bvector.h:
 
 /usr/include/c++/15/cstdint:
 
 /usr/include/c++/15/bits/stl_pair.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/Renesas-DetermineCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeParseImplicitIncludeInfo.cmake:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QOffscreenIntegrationPlugin.cmake:
 
@@ -3320,35 +3548,25 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5GuiConfigVersion.cmake:
 
-/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
-
-/usr/include/c++/15/bits/uniform_int_dist.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
 
 /usr/include/c++/15/bits/move.h:
 
 /usr/include/c++/15/bits/unique_ptr.h:
 
-/usr/include/c++/15/cerrno:
+/usr/include/c++/15/bits/uniform_int_dist.h:
 
-/usr/include/c++/15/bits/char_traits.h:
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
 
-/usr/include/c++/15/cctype:
+/usr/include/x86_64-linux-gnu/bits/wchar.h:
 
 /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
-
-/usr/include/c++/15/cstdio:
-
-/usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfig.cmake:
 
 /usr/lib/x86_64-linux-gnu/libbz2.so.1.0:
 
 /usr/include/x86_64-linux-gnu/c++/15/bits/atomic_word.h:
-
-/usr/share/cmake-4.3/Modules/CMakeParseImplicitLinkInfo.cmake:
 
 /usr/include/c++/15/bits/alloc_traits.h:
 
@@ -3400,6 +3618,12 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringliteral.h:
 
+/usr/include/c++/15/bits/char_traits.h:
+
+/usr/include/c++/15/cctype:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QVariantList:
+
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qabstractitemmodel.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h:
@@ -3414,7 +3638,11 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qpair.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/AppleClang-DetermineCompiler.cmake:
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qpushbutton.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractspinbox.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qbasicatomic.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qstring.h:
 
@@ -3440,8 +3668,6 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontainertools_impl.h:
 
-/usr/share/cmake-4.3/Modules/CMakeSystem.cmake.in:
-
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qcoreevent.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qfiledevice.h:
@@ -3452,33 +3678,27 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringview.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qstringmatcher.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/Borland-DetermineCompiler.cmake:
-
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qflags.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qgenericatomic.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qglobal.h:
 
+/usr/include/x86_64-linux-gnu/bits/locale.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QPushButton:
 
-/usr/share/cmake-4.3/Modules/CMakeDetermineCompiler.cmake:
-
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qlist.h:
+
+/usr/include/limits.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qhash.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qnamespace.h:
-
-/usr/include/c++/15/bits/chrono.h:
-
-/usr/include/c++/15/bits/uses_allocator_args.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qobject.h:
 
 /media/oi-io/data/opensource/uos-apt-gui/src/main.cpp:
 
@@ -3490,11 +3710,17 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qobjectdefs_impl.h:
 
+/usr/include/x86_64-linux-gnu/bits/wordsize.h:
+
+/usr/include/c++/15/cstdio:
+
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qrect.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QApplication:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qrefcount.h:
+
+/usr/include/linux/limits.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qregexp.h:
 
@@ -3511,10 +3737,6 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 /usr/include/c++/15/list:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qvector2d.h:
-
-/usr/share/cmake-4.3/Modules/CMakeCXXCompilerABI.cpp:
-
-/usr/share/cmake-4.3/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qset.h:
 
@@ -3542,14 +3764,6 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qtcore-config.h:
 
-/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
-
-/usr/include/c++/15/bits/atomic_wait.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qrubberband.h:
-
-/usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QXcbGlxIntegrationPlugin.cmake:
-
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qtypeinfo.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qdir.h:
@@ -3557,8 +3771,6 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 /usr/include/x86_64-linux-gnu/qt5/QtGui/QCloseEvent:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QJpegPlugin.cmake:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QCoreApplication:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QXcbEglIntegrationPlugin.cmake:
 
@@ -3570,11 +3782,7 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QMinimalEglIntegrationPlugin.cmake:
 
-/usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreMacros.cmake:
-
-/usr/include/c++/15/vector:
-
-/usr/share/cmake-4.3/Modules/Compiler/OrangeC-DetermineCompiler.cmake:
+/usr/include/x86_64-linux-gnu/qt5/QtGui/qfontmetrics.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qicon.h:
 
@@ -3620,13 +3828,13 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMessageBox:
 
-/usr/share/cmake-4.3/Modules/Compiler/SCO-DetermineCompiler.cmake:
-
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtablewidget.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QTabWidget:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QVBoxLayout:
+
+/usr/share/cmake-4.3/Modules/Platform/Linux-GNU.cmake:
 
 /usr/include/c++/15/stdlib.h:
 
@@ -3648,13 +3856,11 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qcheckbox.h:
 
+/usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusConfigExtras.cmake:
+
+/usr/include/x86_64-linux-gnu/bits/waitflags.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qfiledialog.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake:
-
-/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qframe.h:
 
 /usr/include/c++/15/bits/basic_string.h:
 
@@ -3670,14 +3876,6 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qprogressbar.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qpushbutton.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractspinbox.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake:
-
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qstyleoption.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtabwidget.h:
@@ -3685,8 +3883,6 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 /usr/share/cmake-4.3/Modules/CMakeSystemSpecificInitialize.cmake:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qwidget.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake:
 
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
@@ -3710,9 +3906,13 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5/Qt5Config.cmake:
 
+apt-gui_autogen/6YEA5652QU/moc_helperclient.cpp:
+
 /usr/lib/x86_64-linux-gnu/cmake/Qt5/Qt5ModuleLocation.cmake:
 
 /usr/share/cmake-4.3/Modules/CMakeCXXInformation.cmake:
+
+/usr/include/c++/15/system_error:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
@@ -3722,6 +3922,20 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Core/Qt5CoreConfigExtrasMkspecDir.cmake:
 
+/usr/include/x86_64-linux-gnu/qt5/QtCore/QTextCodec:
+
+/usr/include/x86_64-linux-gnu/c++/15/bits/ctype_inline.h:
+
+/usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusConfig.cmake:
+
+/usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusConfigVersion.cmake:
+
+/usr/lib/x86_64-linux-gnu/libz.so.1:
+
+/usr/include/c++/15/functional:
+
+/usr/lib/x86_64-linux-gnu/cmake/Qt5DBus/Qt5DBusMacros.cmake:
+
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QEglFSIntegrationPlugin.cmake:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QEglFSKmsEglDeviceIntegrationPlugin.cmake:
@@ -3729,6 +3943,10 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 /usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QEglFSX11IntegrationPlugin.cmake:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qframe.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QEvdevKeyboardPlugin.cmake:
 
@@ -3746,6 +3964,12 @@ apt-gui_autogen/6YEA5652QU/moc_operationprogressdialog.cpp:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QMinimalIntegrationPlugin.cmake:
 
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qlocale.h:
+
+/usr/include/endian.h:
+
+/usr/include/stdint.h:
+
 /media/oi-io/data/opensource/uos-apt-gui/CMakeLists.txt:
 
 /usr/include/c++/15/bits/locale_facets.h:
@@ -3762,57 +3986,9 @@ CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o:
 
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsConfigVersion.cmake:
 
-/usr/share/cmake-4.3/Modules/Compiler/HP-CXX-DetermineCompiler.cmake:
-
 /usr/lib/x86_64-linux-gnu/cmake/Qt5Widgets/Qt5WidgetsMacros.cmake:
 
-/usr/include/x86_64-linux-gnu/qt5/QtGui/qfontmetrics.h:
-
-/usr/share/cmake-4.3/Modules/CMakeCompilerIdDetection.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/CrayClang-DetermineCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeDetermineCompilerSupport.cmake:
-
 /usr/share/cmake-4.3/Modules/CMakeInitializeConfigs.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeParseLibraryArchitecture.cmake:
-
-/usr/include/c++/15/ext/type_traits.h:
-
-/usr/share/cmake-4.3/Modules/CMakeTestCXXCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeTestCompilerCommon.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/Watcom-DetermineCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/CMakeUnixFindMake.cmake:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/ADSP-DetermineCompiler.cmake:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qbytearray.h:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlineedit.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/ARMCC-DetermineCompiler.cmake:
-
-/usr/include/x86_64-linux-gnu/bits/uio_lim.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/Clang-DetermineCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/Diab-DetermineCompiler.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/Clang-DetermineCompilerInternal.cmake:
-
-/usr/share/cmake-4.3/Modules/Compiler/Embarcadero-DetermineCompiler.cmake:
-
-/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
-
-/usr/share/cmake-4.3/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake:
 
 /usr/share/cmake-4.3/Modules/Internal/CMakeCommonLinkerInformation.cmake:
 
@@ -3820,28 +3996,62 @@ CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o:
 
 /usr/share/cmake-4.3/Modules/Compiler/GNU.cmake:
 
-/usr/lib/x86_64-linux-gnu/libpcre2-16.so.0:
+/usr/lib/x86_64-linux-gnu/libGLX.so.0:
 
-/usr/share/cmake-4.3/Modules/Compiler/IAR-DetermineCompiler.cmake:
+/usr/share/cmake-4.3/Modules/Linker/GNU.cmake:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qbasicatomic.h:
+/usr/lib/x86_64-linux-gnu/libX11.so.6:
 
-/usr/share/cmake-4.3/Modules/Compiler/Intel-DetermineCompiler.cmake:
+/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/NVHPC-DetermineCompiler.cmake:
+/usr/share/cmake-4.3/Modules/Platform/Linux-GNU-CXX.cmake:
 
-/usr/share/cmake-4.3/Modules/Compiler/NVIDIA-DetermineCompiler.cmake:
+/usr/share/cmake-4.3/Modules/Platform/Linux-Initialize.cmake:
 
-/usr/share/cmake-4.3/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake:
+/usr/include/asm-generic/errno.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/PGI-DetermineCompiler.cmake:
+/usr/share/cmake-4.3/Modules/Platform/Linux.cmake:
 
-/usr/include/c++/15/bits/postypes.h:
+/usr/lib/x86_64-linux-gnu/libpcre2-8.so.0:
 
-/usr/share/cmake-4.3/Modules/Compiler/TI-DetermineCompiler.cmake:
+/usr/share/cmake-4.3/Modules/Platform/UnixPaths.cmake:
 
-/usr/share/cmake-4.3/Modules/Compiler/TIClang-DetermineCompiler.cmake:
+apt-gui_autogen/6YEA5652QU/moc_packagemanager.cpp:
 
-/usr/share/cmake-4.3/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake:
+/usr/include/alloca.h:
 
-/usr/share/cmake-4.3/Modules/Compiler/XL-CXX-DetermineCompiler.cmake:
+/usr/include/c++/15/bits/uses_allocator_args.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtCore/qobject.h:
+
+/usr/include/c++/15/bits/chrono.h:
+
+/usr/include/c++/15/bits/parse_numbers.h:
+
+/usr/include/c++/15/bits/locale_facets.tcc:
+
+/usr/include/stdlib.h:
+
+/usr/include/x86_64-linux-gnu/bits/byteswap.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdint-least.h:
+
+/usr/include/wchar.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
+
+/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
+
+/usr/include/c++/15/bits/atomic_wait.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qrubberband.h:
+
+/usr/lib/x86_64-linux-gnu/cmake/Qt5Gui/Qt5Gui_QXcbGlxIntegrationPlugin.cmake:
+
+/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+
+/usr/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/usr/include/x86_64-linux-gnu/sys/types.h:

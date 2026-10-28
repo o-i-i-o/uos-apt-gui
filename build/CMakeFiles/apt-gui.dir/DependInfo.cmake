@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "" "apt-gui_autogen/timestamp" "custom" "apt-gui_autogen/deps"
   "/media/oi-io/data/opensource/uos-apt-gui/build/apt-gui_autogen/mocs_compilation.cpp" "CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o" "gcc" "CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.o.d"
+  "/media/oi-io/data/opensource/uos-apt-gui/src/helperclient.cpp" "CMakeFiles/apt-gui.dir/src/helperclient.cpp.o" "gcc" "CMakeFiles/apt-gui.dir/src/helperclient.cpp.o.d"
   "/media/oi-io/data/opensource/uos-apt-gui/src/main.cpp" "CMakeFiles/apt-gui.dir/src/main.cpp.o" "gcc" "CMakeFiles/apt-gui.dir/src/main.cpp.o.d"
   "/media/oi-io/data/opensource/uos-apt-gui/src/mainwindow.cpp" "CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o" "gcc" "CMakeFiles/apt-gui.dir/src/mainwindow.cpp.o.d"
   "/media/oi-io/data/opensource/uos-apt-gui/src/operationprogressdialog.cpp" "CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o" "gcc" "CMakeFiles/apt-gui.dir/src/operationprogressdialog.cpp.o.d"

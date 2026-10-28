@@ -175,6 +175,19 @@ apt-gui/fast:
 .PHONY : apt-gui/fast
 
 #=============================================================================
+# Target rules for targets named apt-helperd
+
+# Build rule for target.
+apt-helperd: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 apt-helperd
+.PHONY : apt-helperd
+
+# fast build rule for target.
+apt-helperd/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/build
+.PHONY : apt-helperd/fast
+
+#=============================================================================
 # Target rules for targets named apt-gui_autogen_timestamp_deps
 
 # Build rule for target.
@@ -200,6 +213,32 @@ apt-gui_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-gui_autogen.dir/build.make CMakeFiles/apt-gui_autogen.dir/build
 .PHONY : apt-gui_autogen/fast
 
+#=============================================================================
+# Target rules for targets named apt-helperd_autogen_timestamp_deps
+
+# Build rule for target.
+apt-helperd_autogen_timestamp_deps: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 apt-helperd_autogen_timestamp_deps
+.PHONY : apt-helperd_autogen_timestamp_deps
+
+# fast build rule for target.
+apt-helperd_autogen_timestamp_deps/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd_autogen_timestamp_deps.dir/build.make CMakeFiles/apt-helperd_autogen_timestamp_deps.dir/build
+.PHONY : apt-helperd_autogen_timestamp_deps/fast
+
+#=============================================================================
+# Target rules for targets named apt-helperd_autogen
+
+# Build rule for target.
+apt-helperd_autogen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 apt-helperd_autogen
+.PHONY : apt-helperd_autogen
+
+# fast build rule for target.
+apt-helperd_autogen/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd_autogen.dir/build.make CMakeFiles/apt-helperd_autogen.dir/build
+.PHONY : apt-helperd_autogen/fast
+
 apt-gui_autogen/mocs_compilation.o: apt-gui_autogen/mocs_compilation.cpp.o
 .PHONY : apt-gui_autogen/mocs_compilation.o
 
@@ -223,6 +262,174 @@ apt-gui_autogen/mocs_compilation.s: apt-gui_autogen/mocs_compilation.cpp.s
 apt-gui_autogen/mocs_compilation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-gui.dir/build.make CMakeFiles/apt-gui.dir/apt-gui_autogen/mocs_compilation.cpp.s
 .PHONY : apt-gui_autogen/mocs_compilation.cpp.s
+
+apt-helperd_autogen/mocs_compilation.o: apt-helperd_autogen/mocs_compilation.cpp.o
+.PHONY : apt-helperd_autogen/mocs_compilation.o
+
+# target to build an object file
+apt-helperd_autogen/mocs_compilation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/apt-helperd_autogen/mocs_compilation.cpp.o
+.PHONY : apt-helperd_autogen/mocs_compilation.cpp.o
+
+apt-helperd_autogen/mocs_compilation.i: apt-helperd_autogen/mocs_compilation.cpp.i
+.PHONY : apt-helperd_autogen/mocs_compilation.i
+
+# target to preprocess a source file
+apt-helperd_autogen/mocs_compilation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/apt-helperd_autogen/mocs_compilation.cpp.i
+.PHONY : apt-helperd_autogen/mocs_compilation.cpp.i
+
+apt-helperd_autogen/mocs_compilation.s: apt-helperd_autogen/mocs_compilation.cpp.s
+.PHONY : apt-helperd_autogen/mocs_compilation.s
+
+# target to generate assembly for a file
+apt-helperd_autogen/mocs_compilation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/apt-helperd_autogen/mocs_compilation.cpp.s
+.PHONY : apt-helperd_autogen/mocs_compilation.cpp.s
+
+src/common/packageargs.o: src/common/packageargs.cpp.o
+.PHONY : src/common/packageargs.o
+
+# target to build an object file
+src/common/packageargs.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/common/packageargs.cpp.o
+.PHONY : src/common/packageargs.cpp.o
+
+src/common/packageargs.i: src/common/packageargs.cpp.i
+.PHONY : src/common/packageargs.i
+
+# target to preprocess a source file
+src/common/packageargs.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/common/packageargs.cpp.i
+.PHONY : src/common/packageargs.cpp.i
+
+src/common/packageargs.s: src/common/packageargs.cpp.s
+.PHONY : src/common/packageargs.s
+
+# target to generate assembly for a file
+src/common/packageargs.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/common/packageargs.cpp.s
+.PHONY : src/common/packageargs.cpp.s
+
+src/helper/aptbackend.o: src/helper/aptbackend.cpp.o
+.PHONY : src/helper/aptbackend.o
+
+# target to build an object file
+src/helper/aptbackend.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/aptbackend.cpp.o
+.PHONY : src/helper/aptbackend.cpp.o
+
+src/helper/aptbackend.i: src/helper/aptbackend.cpp.i
+.PHONY : src/helper/aptbackend.i
+
+# target to preprocess a source file
+src/helper/aptbackend.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/aptbackend.cpp.i
+.PHONY : src/helper/aptbackend.cpp.i
+
+src/helper/aptbackend.s: src/helper/aptbackend.cpp.s
+.PHONY : src/helper/aptbackend.s
+
+# target to generate assembly for a file
+src/helper/aptbackend.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/aptbackend.cpp.s
+.PHONY : src/helper/aptbackend.cpp.s
+
+src/helper/helperservice.o: src/helper/helperservice.cpp.o
+.PHONY : src/helper/helperservice.o
+
+# target to build an object file
+src/helper/helperservice.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/helperservice.cpp.o
+.PHONY : src/helper/helperservice.cpp.o
+
+src/helper/helperservice.i: src/helper/helperservice.cpp.i
+.PHONY : src/helper/helperservice.i
+
+# target to preprocess a source file
+src/helper/helperservice.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/helperservice.cpp.i
+.PHONY : src/helper/helperservice.cpp.i
+
+src/helper/helperservice.s: src/helper/helperservice.cpp.s
+.PHONY : src/helper/helperservice.s
+
+# target to generate assembly for a file
+src/helper/helperservice.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/helperservice.cpp.s
+.PHONY : src/helper/helperservice.cpp.s
+
+src/helper/main.o: src/helper/main.cpp.o
+.PHONY : src/helper/main.o
+
+# target to build an object file
+src/helper/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/main.cpp.o
+.PHONY : src/helper/main.cpp.o
+
+src/helper/main.i: src/helper/main.cpp.i
+.PHONY : src/helper/main.i
+
+# target to preprocess a source file
+src/helper/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/main.cpp.i
+.PHONY : src/helper/main.cpp.i
+
+src/helper/main.s: src/helper/main.cpp.s
+.PHONY : src/helper/main.s
+
+# target to generate assembly for a file
+src/helper/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/main.cpp.s
+.PHONY : src/helper/main.cpp.s
+
+src/helper/polkitauthorizer.o: src/helper/polkitauthorizer.cpp.o
+.PHONY : src/helper/polkitauthorizer.o
+
+# target to build an object file
+src/helper/polkitauthorizer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/polkitauthorizer.cpp.o
+.PHONY : src/helper/polkitauthorizer.cpp.o
+
+src/helper/polkitauthorizer.i: src/helper/polkitauthorizer.cpp.i
+.PHONY : src/helper/polkitauthorizer.i
+
+# target to preprocess a source file
+src/helper/polkitauthorizer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/polkitauthorizer.cpp.i
+.PHONY : src/helper/polkitauthorizer.cpp.i
+
+src/helper/polkitauthorizer.s: src/helper/polkitauthorizer.cpp.s
+.PHONY : src/helper/polkitauthorizer.s
+
+# target to generate assembly for a file
+src/helper/polkitauthorizer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-helperd.dir/build.make CMakeFiles/apt-helperd.dir/src/helper/polkitauthorizer.cpp.s
+.PHONY : src/helper/polkitauthorizer.cpp.s
+
+src/helperclient.o: src/helperclient.cpp.o
+.PHONY : src/helperclient.o
+
+# target to build an object file
+src/helperclient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-gui.dir/build.make CMakeFiles/apt-gui.dir/src/helperclient.cpp.o
+.PHONY : src/helperclient.cpp.o
+
+src/helperclient.i: src/helperclient.cpp.i
+.PHONY : src/helperclient.i
+
+# target to preprocess a source file
+src/helperclient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-gui.dir/build.make CMakeFiles/apt-gui.dir/src/helperclient.cpp.i
+.PHONY : src/helperclient.cpp.i
+
+src/helperclient.s: src/helperclient.cpp.s
+.PHONY : src/helperclient.s
+
+# target to generate assembly for a file
+src/helperclient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/apt-gui.dir/build.make CMakeFiles/apt-gui.dir/src/helperclient.cpp.s
+.PHONY : src/helperclient.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -334,10 +541,34 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... apt-gui_autogen"
 	@echo "... apt-gui_autogen_timestamp_deps"
+	@echo "... apt-helperd_autogen"
+	@echo "... apt-helperd_autogen_timestamp_deps"
 	@echo "... apt-gui"
+	@echo "... apt-helperd"
 	@echo "... apt-gui_autogen/mocs_compilation.o"
 	@echo "... apt-gui_autogen/mocs_compilation.i"
 	@echo "... apt-gui_autogen/mocs_compilation.s"
+	@echo "... apt-helperd_autogen/mocs_compilation.o"
+	@echo "... apt-helperd_autogen/mocs_compilation.i"
+	@echo "... apt-helperd_autogen/mocs_compilation.s"
+	@echo "... src/common/packageargs.o"
+	@echo "... src/common/packageargs.i"
+	@echo "... src/common/packageargs.s"
+	@echo "... src/helper/aptbackend.o"
+	@echo "... src/helper/aptbackend.i"
+	@echo "... src/helper/aptbackend.s"
+	@echo "... src/helper/helperservice.o"
+	@echo "... src/helper/helperservice.i"
+	@echo "... src/helper/helperservice.s"
+	@echo "... src/helper/main.o"
+	@echo "... src/helper/main.i"
+	@echo "... src/helper/main.s"
+	@echo "... src/helper/polkitauthorizer.o"
+	@echo "... src/helper/polkitauthorizer.i"
+	@echo "... src/helper/polkitauthorizer.s"
+	@echo "... src/helperclient.o"
+	@echo "... src/helperclient.i"
+	@echo "... src/helperclient.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

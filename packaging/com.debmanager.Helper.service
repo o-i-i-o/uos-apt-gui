@@ -1,0 +1,21 @@
+[Unit]
+Description=DebManager privileged helper
+After=dbus.service polkit.service
+Requires=dbus.service
+
+[Service]
+Type=dbus
+BusName=com.debmanager.Helper
+ExecStart=/usr/lib/apt-gui/apt-helperd
+User=root
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+LockPersonality=yes
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
