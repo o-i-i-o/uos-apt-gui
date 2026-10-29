@@ -1,8 +1,0 @@
-/usr/bin/apt-gui
-/usr/lib/apt-gui/apt-helperd
-/usr/share/dbus-1/system.d/com.debmanager.Helper.conf
-/usr/share/dbus-1/system-services/com.debmanager.Helper.service
-/usr/lib/systemd/system/com.debmanager.Helper.service
-/usr/share/polkit-1/actions/com.debmanager.helper.policy
-/usr/share/applications/apt-gui.desktop
-/usr/share/icons/hicolor/scalable/apps/apt-gui.svg
