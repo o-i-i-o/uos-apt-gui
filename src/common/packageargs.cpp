@@ -22,7 +22,9 @@ QString PackageArgs::validatePackageNames(const QStringList &names)
         return QStringLiteral("单次最多处理 %1 个软件包").arg(kMaxItems);
     }
 
-    static const QRegularExpression pattern(QStringLiteral("^[a-z0-9][a-z0-9+.-]*$"));
+    // 允许可选的 ":arch" 多架构后缀，如 libc6:amd64
+    static const QRegularExpression pattern(
+            QStringLiteral("^[a-z0-9][a-z0-9+.-]*(:[a-z0-9][a-z0-9-]*)?$"));
     for (const QString &name : names) {
         if (name.size() > 200 || !pattern.match(name).hasMatch()) {
             return QStringLiteral("非法包名: %1").arg(abbreviate(name));

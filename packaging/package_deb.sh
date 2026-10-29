@@ -1,34 +1,51 @@
 #!/bin/bash
 # DEB 包打包脚本：编译 → 按 CMake 安装规则填充 → 生成 deb
+#
+# 用法: packaging/package_deb.sh [构建目录]
+#   构建目录也可通过 BUILD_DIR 环境变量指定，默认为 <仓库>/build-deb。
+#   脚本不依赖当前工作目录。
 
 set -euo pipefail
 
 APP_NAME="apt-gui"
-VERSION="1.0.2"
 ARCH="$(dpkg --print-architecture)"
-MAINTAINER="Your Name <your.email@example.com>"
+MAINTAINER="oi-io <boss@oi-io.cc>"
+HOMEPAGE="https://github.com/o-i-i-o/uos-apt-gui"
 DEPENDS="apt, polkitd | policykit-1, libc6, libstdc++6, libqt5core5a, libqt5widgets5, libqt5dbus5"
 
-BUILD_DIR="$(pwd)"
-SOURCE_DIR="$(dirname "$BUILD_DIR")"
-DEB_DIR="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}"
-OUTPUT_DEB="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}.deb"
+REPO_DIR=$(cd "$(dirname "$0")/.." && pwd)
+SOURCE_DIR=$REPO_DIR
+BUILD_DIR=${1:-${BUILD_DIR:-$REPO_DIR/build-deb}}
 
 if [ ! -f "$SOURCE_DIR/CMakeLists.txt" ]; then
-    echo "错误：请在项目的 build 目录中运行本脚本" >&2
+    echo "错误：未找到 $SOURCE_DIR/CMakeLists.txt" >&2
     exit 1
 fi
 
+mkdir -p "$BUILD_DIR"
+BUILD_DIR=$(cd "$BUILD_DIR" && pwd)
+
 echo "=== DEB 包打包脚本 ==="
+echo "构建目录: $BUILD_DIR"
 
 echo "1. 配置与编译..."
 cmake -S "$SOURCE_DIR" -B "$BUILD_DIR" -DCMAKE_INSTALL_PREFIX=/usr >/dev/null
-make -C "$BUILD_DIR" -j"$(nproc)" >/dev/null
+cmake --build "$BUILD_DIR" -j"$(nproc)" >/dev/null
+
+# 版本号唯一来源是 CMakeLists.txt 的 project(VERSION)，这里只读取配置结果
+VERSION=$(sed -n 's/^CMAKE_PROJECT_VERSION:STATIC=//p' "$BUILD_DIR/CMakeCache.txt")
+if [ -z "$VERSION" ]; then
+    echo "错误：无法从 $BUILD_DIR/CMakeCache.txt 读取项目版本" >&2
+    exit 1
+fi
+echo "版本: $VERSION"
+DEB_DIR="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}"
+OUTPUT_DEB="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}.deb"
 
 echo "2. 安装到打包目录..."
 rm -rf "$DEB_DIR"
 mkdir -p "$DEB_DIR/DEBIAN"
-DESTDIR="$DEB_DIR" make -C "$BUILD_DIR" install >/dev/null
+DESTDIR="$DEB_DIR" cmake --install "$BUILD_DIR" >/dev/null
 
 echo "3. 生成 control..."
 INSTALLED_SIZE="$(du -sk "$DEB_DIR" | cut -f1)"
@@ -37,6 +54,7 @@ Package: $APP_NAME
 Version: $VERSION
 Architecture: $ARCH
 Maintainer: $MAINTAINER
+Homepage: $HOMEPAGE
 Installed-Size: $INSTALLED_SIZE
 Depends: $DEPENDS
 Section: admin

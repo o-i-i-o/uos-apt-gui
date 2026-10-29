@@ -2,8 +2,11 @@
 # GUI 冒烟测试：私有总线 + dry-run helper，offscreen 平台启动 GUI 并确认进程稳定存活。
 set -u
 
-REPO_DIR=$(cd "$(dirname "$0")/.." && pwd)
-BUILD_DIR=${BUILD_DIR:-$REPO_DIR/build}
+if [ -z "${BUILD_DIR:-}" ]; then
+    echo "请通过 BUILD_DIR 指定构建目录，例如 BUILD_DIR=/tmp/build tests/run_gui_smoke.sh" >&2
+    exit 1
+fi
+BUILD_DIR=$(cd "$BUILD_DIR" && pwd) || exit 1
 GUI=$BUILD_DIR/apt-gui
 HELPER=$BUILD_DIR/apt-helperd
 

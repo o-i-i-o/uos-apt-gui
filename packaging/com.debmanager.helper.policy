@@ -5,7 +5,7 @@
 <policyconfig>
 
   <vendor>DebManager</vendor>
-  <vendor_url>https://example.com</vendor_url>
+  <vendor_url>https://github.com/o-i-i-o/uos-apt-gui</vendor_url>
 
   <action id="com.debmanager.helper.install">
     <description>安装软件包</description>

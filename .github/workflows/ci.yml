@@ -47,12 +47,22 @@ jobs:
             packaging/com.debmanager.Helper.conf \
             packaging/com.debmanager.helper.policy
           desktop-file-validate packaging/apt-gui.desktop
+          if grep -rnE '1\.[0-9]+\.[0-9]+' src include; then
+            echo "版本号必须只来自 CMakeLists.txt 的 project(VERSION)" >&2
+            exit 1
+          fi
 
       - name: Configure
         run: cmake -S . -B "$RUNNER_TEMP/build" -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
       - name: Build
         run: cmake --build "$RUNNER_TEMP/build" -j"$(nproc)"
+
+      - name: Unit tests
+        run: ctest --test-dir "$RUNNER_TEMP/build" --output-on-failure
+
+      - name: Metadata regression
+        run: python3 tests/test_metadata.py
 
       - name: Security regression
         env:
@@ -62,6 +72,47 @@ jobs:
       - name: GUI smoke test
         env:
           BUILD_DIR: ${{ runner.temp }}/build
+        run: bash tests/run_gui_smoke.sh
+
+  sanitizers:
+    name: Sanitizers (ASan + UBSan)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: build-test
+    env:
+      ASAN_OPTIONS: detect_leaks=0:abort_on_error=1
+      UBSAN_OPTIONS: print_stacktrace=1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake g++ make qtbase5-dev libqt5dbus5 \
+            dbus python3-gi libglib2.0-bin
+
+      - name: Configure
+        run: >
+          cmake -S . -B "$RUNNER_TEMP/asan" -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+
+      - name: Build
+        run: cmake --build "$RUNNER_TEMP/asan" -j"$(nproc)"
+
+      - name: Unit tests
+        run: ctest --test-dir "$RUNNER_TEMP/asan" --output-on-failure
+
+      - name: Security regression
+        env:
+          BUILD_DIR: ${{ runner.temp }}/asan
+        run: bash tests/run_security_tests.sh
+
+      - name: GUI smoke test
+        env:
+          BUILD_DIR: ${{ runner.temp }}/asan
         run: bash tests/run_gui_smoke.sh
 
   package:
@@ -80,14 +131,18 @@ jobs:
             cmake g++ make qtbase5-dev libqt5dbus5 dpkg-dev
 
       - name: Build package
-        run: |
-          mkdir -p build-ci
-          ( cd build-ci && bash ../build/package_deb.sh )
+        run: bash packaging/package_deb.sh build-ci
 
       - name: Inspect package
         run: |
           deb=$(ls build-ci/apt-gui_*_*.deb)
           dpkg-deb --info "$deb"
+          expected=$(sed -n 's/^CMAKE_PROJECT_VERSION:STATIC=//p' build-ci/CMakeCache.txt)
+          actual=$(dpkg-deb -f "$deb" Version)
+          if [ -z "$expected" ] || [ "$actual" != "$expected" ]; then
+            echo "包版本 $actual 与 CMake 项目版本 $expected 不一致" >&2
+            exit 1
+          fi
           dpkg-deb -c "$deb" | grep -E ' \./usr/(bin/apt-gui|lib/apt-gui/apt-helperd|lib/systemd/system/com\.debmanager\.Helper\.service|share/applications/apt-gui\.desktop|share/dbus-1/system-services/com\.debmanager\.Helper\.service|share/dbus-1/system\.d/com\.debmanager\.Helper\.conf|share/icons/hicolor/scalable/apps/apt-gui\.svg|share/polkit-1/actions/com\.debmanager\.helper\.policy)$'
           if dpkg-deb -c "$deb" | grep -q 'com\.debmanager\.policy'; then
             echo "旧 pkexec 策略不应再被打包" >&2

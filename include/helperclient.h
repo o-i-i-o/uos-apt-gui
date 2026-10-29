@@ -4,7 +4,11 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QTimer>
 #include <QVariantList>
+#include <QVector>
+
+class QDBusServiceWatcher;
 
 class HelperClient : public QObject
 {
@@ -19,6 +23,7 @@ public:
     void updateCache();
     void upgrade(bool distUpgrade);
     void autoRemove();
+    void cancel();
 
 signals:
     // 事务已被助手接受；此后 Output/Finished 才会携带该 ID
@@ -27,15 +32,39 @@ signals:
     void failed(const QString &message);
     void output(const QString &transaction, const QString &text);
     void finished(const QString &transaction, int exitCode, const QString &message);
+    // 事务长时间没有任何输出，界面应提示用户可取消
+    void stalled(const QString &transaction);
+    void cancelRejected(const QString &message);
 
 private slots:
     void onRemoteOutput(const QString &transaction, const QString &text);
     void onRemoteFinished(const QString &transaction, int exitCode, const QString &message);
 
 private:
-    void call(const QString &method, const QVariantList &arguments);
+    // Idle: 无请求；Pending: 已发出请求、尚未拿到事务 ID；
+    // Active: 已受理，等待 Finished
+    enum class State { Idle, Pending, Active };
 
+    void call(const QString &method, const QVariantList &arguments);
+    void restartStallTimer();
+    void handleFinished(const QString &transaction, int exitCode, const QString &message);
+    void bufferSignal(bool finished, const QString &transaction, int exitCode, const QString &text);
+    void flushPendingSignals();
+
+    struct PendingSignal {
+        bool finished;
+        QString transaction;
+        int exitCode;
+        QString text;
+    };
+
+    State m_state = State::Idle;
     QString m_transaction;
+    QVector<PendingSignal> m_pendingSignals;
+    QTimer m_stallTimer;
+    QDBusServiceWatcher *m_serviceWatcher = nullptr;
+    // 用于让助手退出后已经失效的在途调用不再产生第二次失败回调
+    quint64 m_requestSerial = 0;
 };
 
 #endif // HELPERCLIENT_H

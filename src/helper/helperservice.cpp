@@ -1,11 +1,13 @@
 #include "helperservice.h"
 #include "aptbackend.h"
+#include "localpackages.h"
 #include "packageargs.h"
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDBusMessage>
 #include <QDebug>
 #include <QFile>
+#include <memory>
 
 namespace
 {
@@ -56,10 +58,25 @@ HelperService::HelperService(AptBackend *backend, QObject *parent)
 QString HelperService::InstallLocalPackages(const QStringList &paths)
 {
     QStringList canonicalPaths;
-    const QString error = PackageArgs::validateLocalDebPaths(paths, &canonicalPaths);
+    QString error = PackageArgs::validateLocalDebPaths(paths, &canonicalPaths);
+
+    // 授权前打开并持有描述符，授权结束后只从这些 fd 暂存，
+    // 期间路径被替换为其他普通文件也不会改变实际内容来源
+    auto packages = std::make_shared<LocalPackageSet>();
+    if (error.isEmpty()) {
+        packages->open(canonicalPaths, &error);
+    }
+
+    // 授权前仍持有已校验的 fd（防 TOCTOU），但差异原因会暴露 root 可见的
+    // 文件存在性/权限，因此只写日志，对外统一返回同一条错误
+    if (!error.isEmpty()) {
+        qWarning() << "拒绝本地安装请求:" << error;
+        error = QStringLiteral("本地安装包校验失败（详情见系统日志）");
+    }
+
     handleRequest(QStringLiteral("com.debmanager.helper.install"), error,
-                  [this, canonicalPaths]() {
-        return m_backend->installLocalPackages(canonicalPaths);
+                  [this, packages]() {
+        return m_backend->installLocalPackages(*packages);
     });
     return QString();
 }
@@ -109,6 +126,35 @@ QString HelperService::AutoRemove()
         return m_backend->autoRemove();
     });
     return QString();
+}
+
+bool HelperService::Cancel(const QString &transaction)
+{
+    if (!calledFromDBus()) {
+        return false;
+    }
+
+    if (transaction.isEmpty()) {
+        sendErrorReply(QLatin1String(kErrorInvalidArgument), QStringLiteral("事务标识为空"));
+        return false;
+    }
+
+    const QString owner = m_destinations.value(transaction);
+    if (owner.isEmpty()) {
+        sendErrorReply(QLatin1String(kErrorInvalidArgument), QStringLiteral("事务不存在或已结束"));
+        return false;
+    }
+    // 取消只是终止自己的能力，不涉及提权，但必须限制为事务发起方
+    if (owner != message().service()) {
+        sendErrorReply(QLatin1String(kErrorNotAuthorized), QStringLiteral("无权取消该事务"));
+        return false;
+    }
+
+    if (!m_backend->cancel(transaction)) {
+        sendErrorReply(QLatin1String(kErrorInvalidArgument), QStringLiteral("事务不存在或已结束"));
+        return false;
+    }
+    return true;
 }
 
 void HelperService::handleRequest(const QString &action, const QString &validationError,

@@ -26,6 +26,10 @@
     <method name="AutoRemove">
       <arg name="transaction" type="s" direction="out"/>
     </method>
+    <method name="Cancel">
+      <arg name="transaction" type="s" direction="in"/>
+      <arg name="cancelled" type="b" direction="out"/>
+    </method>
 
     <signal name="Output">
       <arg name="transaction" type="s"/>

@@ -97,6 +97,7 @@ void MainWindow::setupUI()
     installedLayout->addWidget(progressBar);
     
     statusLabel = new QLabel("就绪");
+    statusLabel->setObjectName("statusLabel");
     installedLayout->addWidget(statusLabel);
     
     // 添加标签页
@@ -192,6 +193,8 @@ void MainWindow::setupConnections()
         }
     });
     connect(packageManager, &PackageManager::operationFinished, this, &MainWindow::onOperationFinished);
+    connect(packageManager, &PackageManager::operationStalled, this, &MainWindow::onOperationStalled);
+    connect(packageManager, &PackageManager::cancelRejected, this, &MainWindow::onCancelRejected);
 }
 
 void MainWindow::refreshPackageList()
@@ -211,7 +214,7 @@ void MainWindow::searchLocalPackages()
     showStatusMessage(QString("正在搜索包: %1").arg(searchText));
     
     QList<DebPackage> filteredPackages;
-    for (const DebPackage &pkg : currentPackages) {
+    for (const DebPackage &pkg : allPackages) {
         if (pkg.name.contains(searchText, Qt::CaseInsensitive) || 
             pkg.description.contains(searchText, Qt::CaseInsensitive)) {
             filteredPackages.append(pkg);
@@ -277,8 +280,11 @@ void MainWindow::autoRemovePackages()
 
 void MainWindow::populatePackageTable(const QList<DebPackage> &packages)
 {
+    // 逐行写入时若排序生效，行会在 setItem 之间被重排，导致各列错位
+    const bool sorting = packageTable->isSortingEnabled();
+    packageTable->setSortingEnabled(false);
+
     packageTable->setRowCount(0);
-    currentPackages = packages;
     
     for (int i = 0; i < packages.size(); ++i) {
         const DebPackage &pkg = packages[i];
@@ -310,120 +316,151 @@ void MainWindow::populatePackageTable(const QList<DebPackage> &packages)
     // 调整列宽
     packageTable->resizeColumnsToContents();
     packageTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+
+    packageTable->setSortingEnabled(sorting);
 }
 
-void MainWindow::onOperationStarted(const QString &message)
+void MainWindow::onOperationStarted(PackageManager::OperationType type, const QString &message)
 {
+    // 加载已安装列表属于后台刷新，不占用用户操作的进度对话框
+    if (type == PackageManager::OperationType::LoadInstalled) {
+        showStatusMessage("加载中");
+        return;
+    }
+
     progressBar->setVisible(true);
     progressBar->setRange(0, 0); // 无限进度条
     setEnabled(false);
-    
-    // 自动刷新时显示"加载中"
-    if (message == "正在加载已安装包列表...") {
-        showStatusMessage("加载中");
-    } else {
-        showStatusMessage(message);
+    showStatusMessage(message);
+
+    // 释放上一次操作遗留的对话框，避免重复创建后泄漏
+    delete progressDialog;
+    progressDialog = new OperationProgressDialog(this);
+    connect(progressDialog, &OperationProgressDialog::cancelRequested,
+            this, &MainWindow::cancelCurrentOperation);
+    progressDialog->setOperationName(message);
+    progressDialog->show();
+}
+
+void MainWindow::onOperationProgress(PackageManager::OperationType type, const QString &message)
+{
+    if (type == PackageManager::OperationType::LoadInstalled) {
+        return;
     }
-    
-    // 只排除"正在加载已安装包列表..."这个特定操作的进度对话框
-    // 其他所有操作（包括搜索、安装、卸载、清理、更新等）都显示进度对话框
-    if (message != "正在加载已安装包列表...") {
-        // 释放上一次操作遗留的对话框，避免重复创建后泄漏
-        delete progressDialog;
-        // 创建并显示进度对话框
-        progressDialog = new OperationProgressDialog(this);
+
+    showStatusMessage(message);
+
+    if (progressDialog && progressDialog->isVisible()) {
         progressDialog->setOperationName(message);
-        progressDialog->show();
     }
 }
 
-void MainWindow::onOperationProgress(const QString &message)
+void MainWindow::onOperationFinished(PackageManager::OperationType type, bool success,
+                                     const QString &message)
 {
-    // 自动刷新过程中保持"加载中"状态，不频繁更新
-    if (message.contains("已加载") && message.contains("个包")) {
-        // 只更新进度对话框，不更新状态栏
-        if (progressDialog && progressDialog->isVisible()) {
-            progressDialog->setOperationName(message);
+    if (type == PackageManager::OperationType::LoadInstalled) {
+        if (success) {
+            allPackages = packageManager->getCurrentPackages();
+            populatePackageTable(allPackages);
+            showStatusMessage(QString("就绪 - 共加载 %1 个已安装包").arg(allPackages.size()), 0);
+        } else {
+            showStatusMessage(QString("加载包列表失败: %1").arg(message));
         }
-    } else {
-        // 其他操作正常更新状态栏
-        showStatusMessage(message);
-        
-        // 更新进度对话框的操作名称
-        if (progressDialog && progressDialog->isVisible()) {
-            progressDialog->setOperationName(message);
-        }
+        return;
     }
-}
 
-void MainWindow::onOperationFinished(bool success, const QString &message)
-{
     progressBar->setVisible(false);
     setEnabled(true);
-    
+
     // 操作完成后，更新进度对话框状态，启用关闭按钮
     if (progressDialog && progressDialog->isVisible()) {
         progressDialog->setFinished(success, message);
     }
-    
-    if (success) {
-        // 如果是加载包列表操作，直接显示包
-        if (message.contains("加载")) {
-            currentPackages = packageManager->getCurrentPackages();
-            populatePackageTable(currentPackages);
-            
-            // 显示就绪状态和已加载包数量，不自动清空
-            QString statusMessage = QString("就绪 - 共加载 %1 个已安装包").arg(currentPackages.size());
-            showStatusMessage(statusMessage, 0);
-        } 
-        // 如果是搜索在线包操作，显示在线包列表
-        else if (message.contains("找到")) {
-            currentOnlinePackages = packageManager->getOnlineSearchResults();
-            
-            // 清空表格
-            onlinePackageTable->setRowCount(0);
-            
-            // 填充表格
-            for (int i = 0; i < currentOnlinePackages.size(); ++i) {
-                const DebPackage &pkg = currentOnlinePackages[i];
-                
-                onlinePackageTable->insertRow(i);
-                
-                // 第一列：复选框
-                QTableWidgetItem *checkItem = new QTableWidgetItem();
-                checkItem->setCheckState(Qt::Unchecked);
-                checkItem->setTextAlignment(Qt::AlignCenter);
-                onlinePackageTable->setItem(i, 0, checkItem);
-                
-                // 第二列：包名
-                QTableWidgetItem *nameItem = new QTableWidgetItem(pkg.name);
-                nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
-                onlinePackageTable->setItem(i, 1, nameItem);
-                
-                // 第三列：已安装状态
-                QTableWidgetItem *installedItem = new QTableWidgetItem(pkg.installed ? "是" : "否");
-                installedItem->setFlags(installedItem->flags() & ~Qt::ItemIsEditable);
-                installedItem->setTextAlignment(Qt::AlignCenter);
-                onlinePackageTable->setItem(i, 2, installedItem);
-                
-                // 第四列：描述
-                QTableWidgetItem *descItem = new QTableWidgetItem(pkg.description);
-                descItem->setFlags(descItem->flags() & ~Qt::ItemIsEditable);
-                onlinePackageTable->setItem(i, 3, descItem);
-            }
-            
-            // 调整列宽
-            onlinePackageTable->resizeColumnsToContents();
-            onlinePackageTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-            
-            // 显示搜索结果数量
-            showStatusMessage(QString("找到 %1 个匹配的包").arg(currentOnlinePackages.size()));
-        } else {
-            // 安装或卸载操作完成后需要刷新列表
-            refreshPackageList();
+
+    if (!success) {
+        showStatusMessage(QString("操作失败: %1").arg(message));
+        return;
+    }
+
+    if (type == PackageManager::OperationType::SearchOnline) {
+        currentOnlinePackages = packageManager->getOnlineSearchResults();
+
+        // 与本地列表相同：填充期间禁用排序，避免行被重排后列错位
+        const bool sorting = onlinePackageTable->isSortingEnabled();
+        onlinePackageTable->setSortingEnabled(false);
+
+        // 清空表格
+        onlinePackageTable->setRowCount(0);
+
+        // 填充表格
+        for (int i = 0; i < currentOnlinePackages.size(); ++i) {
+            const DebPackage &pkg = currentOnlinePackages[i];
+
+            onlinePackageTable->insertRow(i);
+
+            // 第一列：复选框
+            QTableWidgetItem *checkItem = new QTableWidgetItem();
+            checkItem->setCheckState(Qt::Unchecked);
+            checkItem->setTextAlignment(Qt::AlignCenter);
+            onlinePackageTable->setItem(i, 0, checkItem);
+
+            // 第二列：包名
+            QTableWidgetItem *nameItem = new QTableWidgetItem(pkg.name);
+            nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
+            onlinePackageTable->setItem(i, 1, nameItem);
+
+            // 第三列：已安装状态
+            QTableWidgetItem *installedItem = new QTableWidgetItem(pkg.installed ? "是" : "否");
+            installedItem->setFlags(installedItem->flags() & ~Qt::ItemIsEditable);
+            installedItem->setTextAlignment(Qt::AlignCenter);
+            onlinePackageTable->setItem(i, 2, installedItem);
+
+            // 第四列：描述
+            QTableWidgetItem *descItem = new QTableWidgetItem(pkg.description);
+            descItem->setFlags(descItem->flags() & ~Qt::ItemIsEditable);
+            onlinePackageTable->setItem(i, 3, descItem);
         }
-    } else {
-        showStatusMessage("操作失败");
+
+        // 调整列宽
+        onlinePackageTable->resizeColumnsToContents();
+        onlinePackageTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+
+        onlinePackageTable->setSortingEnabled(sorting);
+
+        // 显示搜索结果数量
+        showStatusMessage(QString("找到 %1 个匹配的包").arg(currentOnlinePackages.size()));
+        return;
+    }
+
+    // 安装或卸载操作完成后需要刷新列表
+    refreshPackageList();
+}
+
+void MainWindow::onOperationStalled(PackageManager::OperationType type)
+{
+    Q_UNUSED(type)
+
+    if (progressDialog && progressDialog->isVisible()) {
+        progressDialog->appendOutput(
+                    QStringLiteral("\n[提示] 操作已长时间没有输出，如需终止请点击“取消操作”。"));
+    }
+    showStatusMessage("操作长时间没有输出，可点击“取消操作”终止");
+}
+
+void MainWindow::cancelCurrentOperation()
+{
+    if (progressDialog && progressDialog->isVisible()) {
+        progressDialog->setOperationName("正在取消操作...");
+    }
+    showStatusMessage("正在取消操作...");
+    packageManager->cancelOperation();
+}
+
+void MainWindow::onCancelRejected(const QString &message)
+{
+    showStatusMessage(QString("取消失败: %1").arg(message));
+    if (progressDialog && progressDialog->isVisible()) {
+        progressDialog->cancelFailed(message);
     }
 }
 
@@ -442,7 +479,7 @@ void MainWindow::onItemChanged(QTableWidgetItem *item)
             for (int col = 1; col < packageTable->columnCount(); ++col) {
                 QTableWidgetItem *tableItem = packageTable->item(row, col);
                 if (tableItem) {
-                    packageTable->setItemSelected(tableItem, true);
+                    tableItem->setSelected(true);
                 }
             }
         } else {
@@ -450,7 +487,7 @@ void MainWindow::onItemChanged(QTableWidgetItem *item)
             for (int col = 1; col < packageTable->columnCount(); ++col) {
                 QTableWidgetItem *tableItem = packageTable->item(row, col);
                 if (tableItem) {
-                    packageTable->setItemSelected(tableItem, false);
+                    tableItem->setSelected(false);
                 }
             }
         }
@@ -624,7 +661,7 @@ void MainWindow::onOnlineItemChanged(QTableWidgetItem *item)
             for (int col = 1; col < onlinePackageTable->columnCount(); ++col) {
                 QTableWidgetItem *tableItem = onlinePackageTable->item(row, col);
                 if (tableItem) {
-                    onlinePackageTable->setItemSelected(tableItem, true);
+                    tableItem->setSelected(true);
                 }
             }
         } else {
@@ -632,7 +669,7 @@ void MainWindow::onOnlineItemChanged(QTableWidgetItem *item)
             for (int col = 1; col < onlinePackageTable->columnCount(); ++col) {
                 QTableWidgetItem *tableItem = onlinePackageTable->item(row, col);
                 if (tableItem) {
-                    onlinePackageTable->setItemSelected(tableItem, false);
+                    tableItem->setSelected(false);
                 }
             }
         }
@@ -666,7 +703,8 @@ void MainWindow::showStatusMessage(const QString &message, int timeout)
 {
     statusLabel->setText(message);
     if (timeout > 0) {
-        QTimer::singleShot(timeout, [this]() {
+        // 绑定上下文对象，窗口销毁时由 Qt 取消定时器，避免访问悬空 this
+        QTimer::singleShot(timeout, this, [this]() {
             statusLabel->setText("就绪");
         });
     }

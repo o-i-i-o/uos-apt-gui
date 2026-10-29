@@ -30,9 +30,12 @@ private slots:
     void removeSelectedPackages();
     void installLocalPackages();
     void autoRemovePackages();
-    void onOperationStarted(const QString &message);
-    void onOperationProgress(const QString &message);
-    void onOperationFinished(bool success, const QString &message);
+    void onOperationStarted(PackageManager::OperationType type, const QString &message);
+    void onOperationProgress(PackageManager::OperationType type, const QString &message);
+    void onOperationFinished(PackageManager::OperationType type, bool success, const QString &message);
+    void onOperationStalled(PackageManager::OperationType type);
+    void cancelCurrentOperation();
+    void onCancelRejected(const QString &message);
     void onPackageSelectionChanged();
     void onItemChanged(QTableWidgetItem *item);
     QStringList getSelectedPackages();
@@ -79,7 +82,7 @@ private:
     QPointer<OperationProgressDialog> progressDialog;
     
     PackageManager *packageManager;
-    QList<DebPackage> currentPackages;
+    QList<DebPackage> allPackages;
 };
 
 #endif

@@ -27,6 +27,7 @@ public slots:
     QString UpdateCache();
     QString Upgrade(bool distUpgrade);
     QString AutoRemove();
+    bool Cancel(const QString &transaction);
 
 signals:
     // 仅用于接口声明；实际发送走 sendSignal() 的单播路径

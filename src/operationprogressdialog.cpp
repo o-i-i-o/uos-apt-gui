@@ -30,10 +30,9 @@ OperationProgressDialog::OperationProgressDialog(QWidget *parent)
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
 
-    // 关闭按钮
-    closeButton = new QPushButton("关闭");
-    closeButton->setEnabled(false);
-    connect(closeButton, &QPushButton::clicked, this, &OperationProgressDialog::close);
+    // 关闭按钮：运行中为“取消操作”，结束后变为“关闭”
+    closeButton = new QPushButton("取消操作");
+    connect(closeButton, &QPushButton::clicked, this, &OperationProgressDialog::requestCancel);
     buttonLayout->addWidget(closeButton);
 
     mainLayout->addLayout(buttonLayout);
@@ -63,20 +62,52 @@ void OperationProgressDialog::setFinished(bool success, const QString &message)
     resultMessage = message;
 
     appendOutput("\n" + message);
+    closeButton->setText("关闭");
     closeButton->setEnabled(true);
     closeButton->setFocus();
 }
 
+void OperationProgressDialog::requestCancel()
+{
+    if (isFinished) {
+        close();
+        return;
+    }
+    if (isCancelling) {
+        return;
+    }
+
+    const int result = QMessageBox::question(
+                this, "取消操作",
+                "确定要取消当前操作吗？\n"
+                "取消会终止正在运行的 apt 进程，系统可能停留在部分完成的状态。",
+                QMessageBox::Yes | QMessageBox::No);
+    if (result != QMessageBox::Yes) {
+        return;
+    }
+
+    isCancelling = true;
+    closeButton->setEnabled(false);
+    closeButton->setText("正在取消...");
+    emit cancelRequested();
+}
+
+void OperationProgressDialog::cancelFailed(const QString &message)
+{
+    appendOutput("\n取消失败: " + message);
+    isCancelling = false;
+    closeButton->setText("取消操作");
+    closeButton->setEnabled(true);
+}
+
 void OperationProgressDialog::closeEvent(QCloseEvent *event)
 {
-    if (!isFinished) {
-        int result = QMessageBox::question(this, "确认关闭", 
-                                        "操作正在进行中，确定要关闭吗？",
-                                        QMessageBox::Yes | QMessageBox::No);
-        if (result == QMessageBox::No) {
-            event->ignore();
-            return;
-        }
+    if (isFinished) {
+        event->accept();
+        return;
     }
-    event->accept();
+
+    // 关闭窗口等同请求取消；事务结束前不关闭对话框，避免丢失输出
+    event->ignore();
+    requestCancel();
 }

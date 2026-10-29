@@ -1,10 +1,27 @@
 #include "packagemanager.h"
 #include "helperclient.h"
+#include "programpaths.h"
 #include <QDateTime>
 #include <QFileInfo>
 #include <QProcess>
-#include <QStandardPaths>
+#include <QProcessEnvironment>
+#include <QSet>
 #include <QTimer>
+
+namespace
+{
+const int kSearchTimeoutMs = 60 * 1000;
+
+QProcessEnvironment readOnlyEnvironment()
+{
+    // 固定 C locale，使 dpkg/apt 的输出格式稳定、与解析规则一致
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert(QStringLiteral("LANG"), QStringLiteral("C"));
+    environment.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
+    environment.insert(QStringLiteral("LC_MESSAGES"), QStringLiteral("C"));
+    return environment;
+}
+}
 
 PackageManager::PackageManager(QObject *parent)
     : QObject(parent)
@@ -17,22 +34,32 @@ PackageManager::PackageManager(QObject *parent)
     });
     connect(m_helper, &HelperClient::finished, this,
             [this](const QString &, int exitCode, const QString &message) {
+        const OperationType type = m_helperOperation;
         const QString successMessage = m_pendingSuccessMessage;
         m_pendingSuccessMessage.clear();
 
         if (exitCode == 0) {
-            emit operationFinished(true, successMessage.isEmpty()
+            emit operationFinished(type, true, successMessage.isEmpty()
                                    ? QStringLiteral("操作完成") : successMessage);
         } else {
             m_lastError = message;
-            emit operationFinished(false, message);
+            emit operationFinished(type, false, message);
         }
     });
     connect(m_helper, &HelperClient::failed, this,
             [this](const QString &message) {
+        const OperationType type = m_helperOperation;
         m_pendingSuccessMessage.clear();
         m_lastError = message;
-        emit operationFinished(false, message);
+        emit operationFinished(type, false, message);
+    });
+    connect(m_helper, &HelperClient::stalled, this,
+            [this](const QString &) {
+        emit operationStalled(m_helperOperation);
+    });
+    connect(m_helper, &HelperClient::cancelRejected, this,
+            [this](const QString &message) {
+        emit cancelRejected(message);
     });
 
     if (!checkSystemCommands()) {
@@ -49,8 +76,14 @@ void PackageManager::loadInstalledPackages()
     if (m_listProcess) {
         return;
     }
+    if (m_dpkgPath.isEmpty()) {
+        m_lastError = QStringLiteral("dpkg命令不可用");
+        emit operationFinished(OperationType::LoadInstalled, false, m_lastError);
+        return;
+    }
 
-    emit operationStarted(QStringLiteral("正在加载已安装包列表..."));
+    emit operationStarted(OperationType::LoadInstalled,
+                          QStringLiteral("正在加载已安装包列表..."));
 
     QProcess *process = new QProcess(this);
     m_listProcess = process;
@@ -80,7 +113,7 @@ void PackageManager::loadInstalledPackages()
 
         if (timedOut) {
             m_lastError = QStringLiteral("加载包列表超时");
-            emit operationFinished(false, m_lastError);
+            emit operationFinished(OperationType::LoadInstalled, false, m_lastError);
             return;
         }
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
@@ -88,7 +121,7 @@ void PackageManager::loadInstalledPackages()
             if (m_lastError.isEmpty()) {
                 m_lastError = QStringLiteral("加载包列表失败");
             }
-            emit operationFinished(false, m_lastError);
+            emit operationFinished(OperationType::LoadInstalled, false, m_lastError);
             return;
         }
 
@@ -103,10 +136,11 @@ void PackageManager::loadInstalledPackages()
         m_listProcess = nullptr;
         m_lastError = process->errorString();
         process->deleteLater();
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::LoadInstalled, false, m_lastError);
     });
 
-    process->start(QStringLiteral("dpkg"), QStringList{QStringLiteral("-l")});
+    process->setProcessEnvironment(readOnlyEnvironment());
+    process->start(m_dpkgPath, QStringList{QStringLiteral("-l")});
 }
 
 void PackageManager::parseInstalledPackages(const QString &output)
@@ -116,7 +150,9 @@ void PackageManager::parseInstalledPackages(const QString &output)
     int count = 0;
     const QStringList lines = output.split(QLatin1Char('\n'));
     for (const QString &line : lines) {
-        if (!line.startsWith(QLatin1String("ii"))) { // 只处理已安装的包
+        // 状态列第 1 位是期望动作，第 2 位为 i 表示已安装；
+        // 这样 hi（被 hold 的已安装包）等状态也能加载
+        if (line.size() < 2 || line.at(1) != QLatin1Char('i')) {
             continue;
         }
 
@@ -130,12 +166,15 @@ void PackageManager::parseInstalledPackages(const QString &output)
 
         // 每处理100个包发送一次进度更新
         if (count % 100 == 0) {
-            emit operationProgress(QStringLiteral("已加载 %1 个包").arg(count));
+            emit operationProgress(OperationType::LoadInstalled,
+                                   QStringLiteral("已加载 %1 个包").arg(count));
         }
     }
 
-    emit operationProgress(QStringLiteral("共加载 %1 个已安装包").arg(currentPackages.size()));
-    emit operationFinished(true, QStringLiteral("成功加载 %1 个已安装包").arg(currentPackages.size()));
+    emit operationProgress(OperationType::LoadInstalled,
+                           QStringLiteral("共加载 %1 个已安装包").arg(currentPackages.size()));
+    emit operationFinished(OperationType::LoadInstalled, true,
+                           QStringLiteral("成功加载 %1 个已安装包").arg(currentPackages.size()));
 }
 
 bool PackageManager::installPackage(const QString &packagePath)
@@ -147,17 +186,18 @@ bool PackageManager::removePackage(const QString &packageName, bool purge)
 {
     if (packageName.isEmpty()) {
         m_lastError = "没有选择任何包";
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::Remove, false, m_lastError);
         return false;
     }
 
-    emit operationStarted(purge
+    emit operationStarted(OperationType::Remove, purge
                           ? QStringLiteral("正在完全卸载包并删除配置: %1").arg(packageName)
                           : QStringLiteral("正在卸载包: %1").arg(packageName));
     m_pendingSuccessMessage = purge
             ? QStringLiteral("包完全卸载并删除配置成功: %1").arg(packageName)
             : QStringLiteral("包卸载成功: %1").arg(packageName);
 
+    m_helperOperation = OperationType::Remove;
     m_helper->removePackages(QStringList{packageName}, purge);
     return true;
 }
@@ -166,17 +206,18 @@ bool PackageManager::removeMultiplePackages(const QStringList &packageNames, boo
 {
     if (packageNames.isEmpty()) {
         m_lastError = "没有选择任何包";
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::Remove, false, m_lastError);
         return false;
     }
 
-    emit operationStarted(purge
+    emit operationStarted(OperationType::Remove, purge
                           ? QStringLiteral("正在批量完全卸载 %1 个包并删除配置").arg(packageNames.size())
                           : QStringLiteral("正在批量卸载 %1 个包").arg(packageNames.size()));
     m_pendingSuccessMessage = purge
             ? QStringLiteral("所有 %1 个包完全卸载并删除配置成功").arg(packageNames.size())
             : QStringLiteral("所有 %1 个包卸载成功").arg(packageNames.size());
 
+    m_helperOperation = OperationType::Remove;
     m_helper->removePackages(packageNames, purge);
     return true;
 }
@@ -185,24 +226,39 @@ bool PackageManager::installMultiplePackages(const QStringList &packagePaths)
 {
     if (packagePaths.isEmpty()) {
         m_lastError = "没有选择任何包文件";
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::InstallLocal, false, m_lastError);
         return false;
     }
 
-    emit operationStarted(QStringLiteral("正在批量安装 %1 个包").arg(packagePaths.size()));
+    emit operationStarted(OperationType::InstallLocal,
+                          QStringLiteral("正在批量安装 %1 个包").arg(packagePaths.size()));
     m_pendingSuccessMessage = QStringLiteral("所有 %1 个包安装成功").arg(packagePaths.size());
 
+    m_helperOperation = OperationType::InstallLocal;
     m_helper->installLocalPackages(packagePaths);
     return true;
 }
 
 bool PackageManager::autoRemove()
 {
-    emit operationStarted(QStringLiteral("正在执行自动清理..."));
+    emit operationStarted(OperationType::AutoRemove, QStringLiteral("正在执行自动清理..."));
     m_pendingSuccessMessage = QStringLiteral("自动清理完成");
 
+    m_helperOperation = OperationType::AutoRemove;
     m_helper->autoRemove();
     return true;
+}
+
+void PackageManager::cancelOperation()
+{
+    if (m_searchProcess) {
+        if (m_searchAbortMessage.isEmpty()) {
+            m_searchAbortMessage = QStringLiteral("搜索已取消");
+        }
+        m_searchProcess->kill();
+        return;
+    }
+    m_helper->cancel();
 }
 
 bool PackageManager::checkAptCache()
@@ -223,9 +279,10 @@ bool PackageManager::checkAptCache()
 
 bool PackageManager::updateAptCache()
 {
-    emit operationStarted(QStringLiteral("正在更新apt缓存..."));
+    emit operationStarted(OperationType::UpdateCache, QStringLiteral("正在更新apt缓存..."));
     m_pendingSuccessMessage = QStringLiteral("apt缓存更新完成");
 
+    m_helperOperation = OperationType::UpdateCache;
     m_helper->updateCache();
     return true;
 }
@@ -234,19 +291,34 @@ bool PackageManager::searchOnlinePackages(const QString &searchTerm)
 {
     if (searchTerm.isEmpty()) {
         m_lastError = "请输入搜索关键词";
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::SearchOnline, false, m_lastError);
         return false;
     }
     if (m_searchProcess) {
         m_lastError = "已有搜索正在进行，请稍候";
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::SearchOnline, false, m_lastError);
+        return false;
+    }
+    if (m_aptPath.isEmpty()) {
+        m_lastError = QStringLiteral("apt命令不可用");
+        emit operationFinished(OperationType::SearchOnline, false, m_lastError);
         return false;
     }
 
-    emit operationStarted(QStringLiteral("正在搜索在线包: %1").arg(searchTerm));
+    emit operationStarted(OperationType::SearchOnline,
+                          QStringLiteral("正在搜索在线包: %1").arg(searchTerm));
 
     QProcess *process = new QProcess(this);
     m_searchProcess = process;
+    m_searchAbortMessage.clear();
+
+    QTimer::singleShot(kSearchTimeoutMs, process, [this, process]() {
+        if (m_searchProcess != process) {
+            return;
+        }
+        m_searchAbortMessage = QStringLiteral("搜索超时，已终止");
+        process->kill();
+    });
 
     connect(process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, [this, process, searchTerm](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -258,18 +330,26 @@ bool PackageManager::searchOnlinePackages(const QString &searchTerm)
 
         const QByteArray errorOutput = process->readAllStandardError();
         const QByteArray output = process->readAllStandardOutput();
+        const QString abortMessage = m_searchAbortMessage;
+        m_searchAbortMessage.clear();
         process->deleteLater();
+
+        if (!abortMessage.isEmpty()) {
+            m_lastError = abortMessage;
+            emit operationFinished(OperationType::SearchOnline, false, abortMessage);
+            return;
+        }
 
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             m_lastError = QString::fromLocal8Bit(errorOutput).trimmed();
             if (m_lastError.isEmpty()) {
                 m_lastError = QStringLiteral("搜索包失败");
             }
-            emit operationFinished(false, m_lastError);
+            emit operationFinished(OperationType::SearchOnline, false, m_lastError);
             return;
         }
 
-        parseAptSearchOutput(QString::fromUtf8(output), searchTerm);
+        parseAptSearchOutput(QString::fromUtf8(output));
     });
 
     connect(process, &QProcess::errorOccurred, this,
@@ -278,104 +358,95 @@ bool PackageManager::searchOnlinePackages(const QString &searchTerm)
             return;
         }
         m_searchProcess = nullptr;
+        m_searchAbortMessage.clear();
         m_lastError = process->errorString();
         process->deleteLater();
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::SearchOnline, false, m_lastError);
     });
 
-    process->start(QStringLiteral("apt"), QStringList{QStringLiteral("search"), searchTerm});
+    process->setProcessEnvironment(readOnlyEnvironment());
+    process->start(m_aptPath, QStringList{QStringLiteral("search"), searchTerm});
     return true;
 }
 
-void PackageManager::parseAptSearchOutput(const QString &output, const QString &searchTerm)
+void PackageManager::parseAptSearchOutput(const QString &output)
 {
     onlineSearchResults.clear();
 
+    // apt search 的头部提示随语言环境变化（C 为 Sorting/Full Text Search，
+    // 中文为 正在排序/全文搜索），因此不依赖提示文本，只按行格式识别包。
     const QStringList lines = output.split(QLatin1Char('\n'));
-
-    // 跳过警告信息和头信息，直到找到包信息行
-    bool foundPackages = false;
     DebPackage currentPkg;
     bool hasCurrentPackage = false;
 
-    for (int i = 0; i < lines.size(); ++i) {
-        const QString &line = lines[i];
-        const QString trimmedLine = line.trimmed();
-        if (trimmedLine.isEmpty()) {
-            // 空行表示一个包信息的结束，如果有未添加的包，现在添加
-            if (hasCurrentPackage && !currentPkg.name.isEmpty()) {
-                if (currentPkg.name.contains(searchTerm, Qt::CaseInsensitive)
-                    || currentPkg.description.contains(searchTerm, Qt::CaseInsensitive)) {
-                    onlineSearchResults.append(currentPkg);
-                }
-                hasCurrentPackage = false;
-            }
-            continue;
-        }
-
-        // 跳过警告行
-        if (trimmedLine.contains("WARNING") || trimmedLine.contains("apt does not have a stable CLI interface")) {
-            continue;
-        }
-
-        // 跳过排序和搜索提示
-        if (trimmedLine.contains("正在排序") || trimmedLine.contains("全文搜索")) {
-            foundPackages = true;
-            continue;
-        }
-
-        if (!foundPackages) {
-            continue;
-        }
-
-        // 检查是否是描述行（以空格开头）
-        if (line.startsWith(QLatin1String("    "))) {
-            if (hasCurrentPackage) {
-                if (currentPkg.description.isEmpty()) {
-                    currentPkg.description = trimmedLine;
-                } else {
-                    currentPkg.description += QLatin1Char(' ') + trimmedLine;
-                }
-            }
-            continue;
-        }
-
-        // 包信息行：先处理上一个包，再开始解析新包
+    const auto appendCurrent = [this, &currentPkg, &hasCurrentPackage]() {
         if (hasCurrentPackage && !currentPkg.name.isEmpty()) {
-            if (currentPkg.name.contains(searchTerm, Qt::CaseInsensitive)
-                || currentPkg.description.contains(searchTerm, Qt::CaseInsensitive)) {
-                onlineSearchResults.append(currentPkg);
-            }
-        }
-        currentPkg = parseAptSearchLine(line);
-        hasCurrentPackage = !currentPkg.name.isEmpty();
-    }
-
-    // 处理最后一个包
-    if (hasCurrentPackage && !currentPkg.name.isEmpty()) {
-        if (currentPkg.name.contains(searchTerm, Qt::CaseInsensitive)
-            || currentPkg.description.contains(searchTerm, Qt::CaseInsensitive)) {
             onlineSearchResults.append(currentPkg);
         }
-    }
+        hasCurrentPackage = false;
+    };
 
+    for (const QString &line : lines) {
+        if (line.trimmed().isEmpty()) {
+            appendCurrent();
+            continue;
+        }
+
+        // 描述行以空白缩进（apt search 实际为两个空格）
+        if (line.at(0).isSpace()) {
+            if (hasCurrentPackage) {
+                const QString text = line.trimmed();
+                if (!text.isEmpty()) {
+                    if (!currentPkg.description.isEmpty()) {
+                        currentPkg.description += QLatin1Char(' ');
+                    }
+                    currentPkg.description += text;
+                }
+            }
+            continue;
+        }
+
+        // 包信息行：形如 name/archive version arch [flags]
+        const DebPackage parsed = parseAptSearchLine(line);
+        if (parsed.name.isEmpty()) {
+            // 头部提示或警告行，忽略
+            continue;
+        }
+
+        appendCurrent();
+        currentPkg = parsed;
+        hasCurrentPackage = true;
+    }
+    appendCurrent();
+
+    // apt search 已完成匹配，这里不再按关键词二次过滤，
+    // 否则正则搜索等合法结果会被丢弃。
     updateInstalledStatus();
 
-    emit operationFinished(true, QStringLiteral("找到 %1 个匹配的包").arg(onlineSearchResults.size()));
+    emit operationFinished(OperationType::SearchOnline, true,
+                           QStringLiteral("找到 %1 个匹配的包").arg(onlineSearchResults.size()));
 }
 
 void PackageManager::updateInstalledStatus()
 {
-    // 获取所有已安装包的名称
-    QStringList installedPackageNames;
+    // dpkg 对多架构包给出 "name:arch"，而 apt search 通常只给 "name"，
+    // 因此同时记录完整名称和去掉架构后的名称用于匹配
+    QSet<QString> installedNames;
+    QSet<QString> installedBaseNames;
     for (const DebPackage &pkg : currentPackages) {
-        installedPackageNames.append(pkg.name);
+        installedNames.insert(pkg.name);
+        const int colon = pkg.name.indexOf(QLatin1Char(':'));
+        if (colon > 0) {
+            installedBaseNames.insert(pkg.name.left(colon));
+        }
     }
 
-    // 更新搜索结果中每个包的已安装状态
-    for (int i = 0; i < onlineSearchResults.size(); ++i) {
-        DebPackage &pkg = onlineSearchResults[i];
-        pkg.installed = installedPackageNames.contains(pkg.name);
+    for (DebPackage &pkg : onlineSearchResults) {
+        bool installed = installedNames.contains(pkg.name);
+        if (!installed && !pkg.name.contains(QLatin1Char(':'))) {
+            installed = installedBaseNames.contains(pkg.name);
+        }
+        pkg.installed = installed;
     }
 }
 
@@ -383,24 +454,28 @@ bool PackageManager::installOnlinePackages(const QStringList &packageNames)
 {
     if (packageNames.isEmpty()) {
         m_lastError = "没有选择任何包";
-        emit operationFinished(false, m_lastError);
+        emit operationFinished(OperationType::InstallOnline, false, m_lastError);
         return false;
     }
 
-    emit operationStarted(QStringLiteral("正在安装 %1 个包").arg(packageNames.size()));
+    emit operationStarted(OperationType::InstallOnline,
+                          QStringLiteral("正在安装 %1 个包").arg(packageNames.size()));
     m_pendingSuccessMessage = QStringLiteral("所有 %1 个包安装成功").arg(packageNames.size());
 
+    m_helperOperation = OperationType::InstallOnline;
     m_helper->installPackages(packageNames);
     return true;
 }
 
 bool PackageManager::upgradeSystem(bool distUpgrade)
 {
-    emit operationStarted(distUpgrade ? QStringLiteral("正在执行系统完全更新...")
-                                      : QStringLiteral("正在执行系统更新..."));
+    emit operationStarted(OperationType::Upgrade, distUpgrade
+                          ? QStringLiteral("正在执行系统完全更新...")
+                          : QStringLiteral("正在执行系统更新..."));
     m_pendingSuccessMessage = distUpgrade ? QStringLiteral("系统完全更新完成")
                                           : QStringLiteral("系统更新完成");
 
+    m_helperOperation = OperationType::Upgrade;
     m_helper->upgrade(distUpgrade);
     return true;
 }
@@ -411,40 +486,29 @@ DebPackage PackageManager::parseAptSearchLine(const QString &line)
     pkg.installed = false;
     pkg.version = "";
 
-    // apt search 实际输出格式示例:
-    // amule-gnome-support/未知,未知 1:2.3.2-5 all
-    //   ed2k links handling support for GNOME web browsers
+    // apt search 实际输出格式示例（C 与中文环境的头部提示不同，包行一致）:
+    // bash/stonking,now 5.3-3ubuntu1 amd64 [installed,automatic]
+    //   GNU Bourne Again SHell
 
-    const QString trimmedLine = line.trimmed();
-    if (trimmedLine.isEmpty()) {
+    if (line.isEmpty() || line.at(0).isSpace()) {
         return pkg;
     }
 
-    // 检查是否是描述行（以空格开头）
-    if (line.startsWith(QLatin1String("    "))) {
+    // simplified() 已合并连续空白，按单空格切分即可，无需正则与跳过空项
+    const QStringList parts = line.simplified().split(QLatin1Char(' '));
+    if (parts.size() < 2) {
         return pkg;
     }
 
-    // 解析包信息行
-    const QStringList parts = trimmedLine.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-
-    if (parts.size() >= 2) {
-        // 包名包含/，需要提取
-        const QString pkgFullName = parts[0];
-        const int slashIndex = pkgFullName.indexOf(QLatin1Char('/'));
-        if (slashIndex != -1) {
-            pkg.name = pkgFullName.left(slashIndex);
-        } else {
-            pkg.name = pkgFullName;
-        }
-
-        // 版本信息在第二部分
-        pkg.version = parts[1];
-
-        // 描述暂时设为空，后续可以改进为读取下一行
-        pkg.description = "";
+    // 包名必须带 "/存档" 后缀；头部提示与警告行没有该结构
+    const QString fullName = parts[0];
+    const int slashIndex = fullName.indexOf(QLatin1Char('/'));
+    if (slashIndex <= 0) {
+        return pkg;
     }
 
+    pkg.name = fullName.left(slashIndex);
+    pkg.version = parts[1];
     return pkg;
 }
 
@@ -458,16 +522,21 @@ DebPackage PackageManager::parseDpkgLine(const QString &line)
     DebPackage pkg;
     pkg.installed = true;
 
-    // dpkg -l 输出格式: ii  package-name  version  description
-    const QStringList parts = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    // dpkg -l 输出格式: ii  package-name  version  architecture  description
+    const QString simplified = line.simplified();
+    if (simplified.isEmpty()) {
+        return pkg;
+    }
+    const QStringList parts = simplified.split(QLatin1Char(' '));
 
     if (parts.size() >= 4) {
+        // 多架构包在名称列带 ":arch" 后缀，需原样保留以便精确卸载
         pkg.name = parts[1];
         pkg.version = parts[2];
 
-        // 描述可能包含空格，所以需要合并剩余部分
+        // 第 4 列为架构，描述从第 5 列开始且可能包含空格
         QStringList descParts;
-        for (int i = 3; i < parts.size(); ++i) {
+        for (int i = 4; i < parts.size(); ++i) {
             descParts.append(parts[i]);
         }
         pkg.description = descParts.join(QLatin1Char(' '));
@@ -478,12 +547,15 @@ DebPackage PackageManager::parseDpkgLine(const QString &line)
 
 bool PackageManager::checkSystemCommands()
 {
-    if (QStandardPaths::findExecutable(QStringLiteral("apt")).isEmpty()) {
+    m_aptPath = ProgramPaths::findSystemExecutable(QStringLiteral("apt"));
+    m_dpkgPath = ProgramPaths::findSystemExecutable(QStringLiteral("dpkg"));
+
+    if (m_aptPath.isEmpty()) {
         m_lastError = "apt命令不可用";
         return false;
     }
 
-    if (QStandardPaths::findExecutable(QStringLiteral("dpkg")).isEmpty()) {
+    if (m_dpkgPath.isEmpty()) {
         m_lastError = "dpkg命令不可用";
         return false;
     }

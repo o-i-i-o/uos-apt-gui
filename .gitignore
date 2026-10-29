@@ -1,0 +1,6 @@
+/build/
+/build-*/
+/deb-build/
+__pycache__/
+*.py[cod]
+*.deb
