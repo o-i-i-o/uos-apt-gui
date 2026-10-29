@@ -138,7 +138,7 @@ bash packaging/package_deb.sh /tmp/build   # 也可显式指定
 sudo apt install ./build-deb/apt-gui_<版本>_<架构>.deb
 ```
 
-交叉打包只需指定工具链文件，包架构由产物 ELF 头自动判定（`DEB_ARCH` 可显式覆盖，与产物不一致会报错）：
+交叉打包只需指定工具链文件，包架构由产物 ELF 头自动判定（`DEB_ARCH` 可显式覆盖，与产物不一致会报错；交叉构建下若无法识别产物架构会直接失败，不会静默回退成宿主架构）：
 
 ```bash
 CMAKE_TOOLCHAIN_FILE=cmake/toolchains/linux-arm64.cmake \

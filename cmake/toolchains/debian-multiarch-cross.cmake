@@ -19,7 +19,13 @@ set(CMAKE_RANLIB "${APT_GUI_CROSS_TRIPLET}-ranlib")
 set(CMAKE_STRIP "${APT_GUI_CROSS_TRIPLET}-strip")
 
 # 目标架构的 Qt5 配置位于 multiarch 目录，如 /usr/lib/aarch64-linux-gnu/cmake/Qt5
-list(APPEND CMAKE_PREFIX_PATH "/usr/lib/${APT_GUI_CROSS_TRIPLET}/cmake")
+# 工具链文件会在 cmake_minimum_required 之前被多次读入（策略仍为 OLD，不可用 IN_LIST），
+# 因此这里用策略无关的写法去重，避免 CMAKE_PREFIX_PATH 重复项
+set(_apt_gui_cross_prefix "/usr/lib/${APT_GUI_CROSS_TRIPLET}/cmake")
+string(FIND "${CMAKE_PREFIX_PATH}" "${_apt_gui_cross_prefix}" _apt_gui_prefix_pos)
+if(_apt_gui_prefix_pos EQUAL -1)
+    list(APPEND CMAKE_PREFIX_PATH "${_apt_gui_cross_prefix}")
+endif()
 
 # 目标库与头文件同时位于 /usr/<triplet> 与 /usr/lib/<triplet> 两处
 set(CMAKE_FIND_ROOT_PATH "/usr/${APT_GUI_CROSS_TRIPLET}" "/usr")
