@@ -159,3 +159,65 @@ jobs:
           path: build-ci/apt-gui_*_*.deb
           if-no-files-found: error
           retention-days: 14
+
+  cross-build-arm64:
+    name: Cross build & package (arm64 on amd64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: build-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable arm64 and install cross toolchain
+        run: |
+          sudo dpkg --add-architecture arm64
+          # 镜像源必须按架构收敛：archive/azure 镜像不提供 arm64，arm64 只从 ports 取
+          for f in /etc/apt/sources.list.d/*.sources; do
+            if ! grep -q '^Architectures:' "$f"; then
+              sudo sed -i -E 's/^Types:[[:space:]]*(.*)$/Types: \1\nArchitectures: amd64/' "$f"
+            fi
+          done
+          sudo tee /etc/apt/sources.list.d/ubuntu-ports.sources >/dev/null <<'EOF'
+          Types: deb
+          URIs: http://ports.ubuntu.com/ubuntu-ports/
+          Suites: noble noble-updates noble-security
+          Components: main universe
+          Architectures: arm64
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
+          sudo apt-get update
+          # qtbase5-dev-tools 只装宿主版（Multi-Arch: foreign），提供 moc/uic/rcc
+          sudo apt-get install -y --no-install-recommends \
+            crossbuild-essential-arm64 qtbase5-dev:arm64 qtbase5-dev-tools
+
+      - name: Cross build and package
+        env:
+          CMAKE_TOOLCHAIN_FILE: ${{ github.workspace }}/cmake/toolchains/linux-arm64.cmake
+        run: bash packaging/package_deb.sh "$RUNNER_TEMP/cross-arm64"
+
+      - name: Verify arm64 package
+        run: |
+          deb=$(ls "$RUNNER_TEMP"/cross-arm64/apt-gui_*_arm64.deb)
+          test "$(dpkg-deb -f "$deb" Architecture)" = arm64
+          extract="$RUNNER_TEMP/extract-arm64"
+          mkdir -p "$extract"
+          dpkg-deb -x "$deb" "$extract"
+          for bin in usr/bin/apt-gui usr/lib/apt-gui/apt-helperd; do
+            if ! LC_ALL=C readelf -h "$extract/$bin" | grep -q 'AArch64'; then
+              echo "$bin 不是 AArch64 产物" >&2
+              exit 1
+            fi
+          done
+          dpkg-deb -c "$deb" | grep -E ' \./usr/(bin/apt-gui|lib/apt-gui/apt-helperd)$'
+          dpkg-deb --fsys-tarfile "$deb" \
+            | tar -xOf - ./usr/share/polkit-1/actions/com.debmanager.helper.policy \
+            | grep -q 'auth_admin_keep'
+
+      - name: Upload arm64 deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apt-gui-deb-arm64
+          path: ${{ runner.temp }}/cross-arm64/apt-gui_*_arm64.deb
+          if-no-files-found: error
+          retention-days: 14

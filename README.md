@@ -94,6 +94,23 @@ cmake --build build -j"$(nproc)"
 
 产物为 `build/apt-gui` 与 `build/apt-helperd`，构建目录可任意指定（建议放在源码树之外）。版本号唯一来源是 [`CMakeLists.txt`](CMakeLists.txt) 中的 `project(... VERSION ...)`，两个程序通过编译定义获得该版本。
 
+### 交叉编译
+
+工具链文件在 `cmake/toolchains/`：`linux-arm64.cmake`（amd64 宿主 → arm64）与 `linux-amd64.cmake`（arm64 宿主 → amd64），采用 Debian/Ubuntu multiarch 方案。
+
+```bash
+# 宿主 amd64 准备 arm64 交叉环境（一次性，需 root）
+sudo dpkg --add-architecture arm64
+sudo apt install crossbuild-essential-arm64 qtbase5-dev:arm64 qtbase5-dev-tools
+
+cmake -S . -B build-arm64 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/linux-arm64.cmake
+cmake --build build-arm64 -j"$(nproc)"
+```
+
+- 目标 Qt5 的 CMake 配置从 `/usr/lib/<triplet>/cmake` 读取，`moc`/`uic`/`rcc` 始终使用宿主工具（`CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER`），因此不需要自建 host Qt。
+- 交叉编译时 `BUILD_TESTING` 默认关闭：测试目标需要目标架构的 `Qt5::Test`，产物也无法在宿主直接执行。安装 `qemu-user-static` 后可用 `-DBUILD_TESTING=ON`，工具链会自动把 `CMAKE_CROSSCOMPILING_EMULATOR` 指向 `qemu-<arch> -L /usr/<triplet>`，让 CTest 可运行。
+- 交叉编译必须使用全新的构建目录；切换工具链复用它会被 CMake 拒绝（打包脚本会提前报错）。
+
 ## 测试
 
 ```bash
@@ -103,7 +120,7 @@ BUILD_DIR=$PWD/build bash tests/run_security_tests.sh
 BUILD_DIR=$PWD/build bash tests/run_gui_smoke.sh
 ```
 
-`BUILD_DIR` 必须显式指定，脚本不再默认使用仓库内 `build/`。
+`BUILD_DIR` 必须显式指定，脚本不再默认使用仓库内 `build/`。所有测试脚本都直接执行构建产物，因此交叉编译产物需要先安装 `qemu-user-static` 并配置 binfmt，或在目标架构机器上运行。
 
 - `packageargs`（CTest）：包名与本地 deb 路径校验的单元测试，覆盖多架构后缀、非法字符、路径规范化、权限与数量上限。
 - `gui_interaction`（CTest，offscreen）：通过真实信号驱动主窗口与进度对话框，覆盖加载操作不创建进度框、按操作类型过滤进度与结束信号、取消确认/失败恢复、运行中关闭需确认、结束后按钮关闭等交互。
@@ -111,7 +128,7 @@ BUILD_DIR=$PWD/build bash tests/run_gui_smoke.sh
 - `run_gui_smoke.sh`：在 offscreen 平台启动真实 GUI 与助手，确认进程稳定运行。
 - `test_metadata.py`：校验 polkit 策略、系统总线策略、D-Bus 激活/服务文件、systemd 单元、桌面入口与接口 XML 的一致性（含 action 默认值、路径、信号/方法签名），并让 `dbus-daemon` 实际加载总线策略文件。
 
-CI 在 Ubuntu 22.04 / 24.04 上执行构建、单元测试、元数据测试与安全回归，并校验版本一致性以及 deb 包内容；另有一个 ASan + UBSan 任务用同样的测试覆盖内存与未定义行为问题。
+CI 在 Ubuntu 22.04 / 24.04 上执行原生构建、单元测试、元数据测试与安全回归，并校验版本一致性以及 deb 包内容；另有一个 ASan + UBSan 任务用同样的测试覆盖内存与未定义行为问题；`cross-build-arm64` 任务在 amd64 上交叉编译 arm64 并校验包架构与产物 ELF 架构一致。
 
 ## 打包与安装
 
@@ -119,6 +136,14 @@ CI 在 Ubuntu 22.04 / 24.04 上执行构建、单元测试、元数据测试与�
 bash packaging/package_deb.sh              # 默认构建目录 build-deb
 bash packaging/package_deb.sh /tmp/build   # 也可显式指定
 sudo apt install ./build-deb/apt-gui_<版本>_<架构>.deb
+```
+
+交叉打包只需指定工具链文件，包架构由产物 ELF 头自动判定（`DEB_ARCH` 可显式覆盖，与产物不一致会报错）：
+
+```bash
+CMAKE_TOOLCHAIN_FILE=cmake/toolchains/linux-arm64.cmake \
+  bash packaging/package_deb.sh build-arm64
+# 得到 build-arm64/apt-gui_<版本>_arm64.deb，可拷到 arm64 机器上安装
 ```
 
 脚本可在任意工作目录执行：配置、编译、按 CMake 安装规则填充包目录并调用 `dpkg-deb`，版本取自 CMake。安装内容：
@@ -137,7 +162,8 @@ sudo apt install ./build-deb/apt-gui_<版本>_<架构>.deb
 
 ## 平台说明
 
-- 最初面向 UOS arm64 编写。当前在 x86_64 / amd64 上完成构建、测试与打包验证；arm64 未在 CI 中覆盖。
+- 最初面向 UOS arm64 编写。amd64 已完成原生构建、测试与打包验证；arm64 通过 `cmake/toolchains/linux-arm64.cmake` 交叉构建并在 CI 中校验产物架构与包内容，但 arm64 的运行时测试（`ctest`、安全回归、GUI 冒烟）尚未在 CI 中覆盖，需在 arm64 机器或 qemu 下补跑。
+- 代码与 Qt5 之外无架构相关依赖（不链接 `libapt-pkg`，`apt`/`dpkg` 通过绝对路径调用），两种架构同源。
 - 不再依赖 `pkexec`、开发者模式或 root 启动 GUI；授权统一由 polkit 承担，需要系统启用 polkit 服务。
 - GUI 只负责展示与发起请求，不直接执行任何特权命令。
 

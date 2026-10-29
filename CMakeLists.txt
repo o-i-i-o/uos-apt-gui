@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(apt-gui VERSION 1.0.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -7,8 +7,19 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5 COMPONENTS Widgets DBus REQUIRED)
 
+# 交叉编译默认不构建测试：测试目标依赖目标架构的 Qt5::Test，产物也无法在宿主直接执行。
+# 安装了 qemu-user-static 时可显式加 -DBUILD_TESTING=ON（工具链会自动接管模拟器）。
+if(CMAKE_CROSSCOMPILING AND NOT DEFINED BUILD_TESTING)
+    set(BUILD_TESTING OFF CACHE BOOL "构建测试目标" FORCE)
+endif()
+
 include(CTest)
 include_directories(include)
+
+if(CMAKE_CROSSCOMPILING)
+    message(STATUS "交叉编译目标：${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}"
+                   "（BUILD_TESTING=${BUILD_TESTING}）")
+endif()
 
 set(SOURCES
     src/main.cpp

@@ -4,11 +4,16 @@
 # 用法: packaging/package_deb.sh [构建目录]
 #   构建目录也可通过 BUILD_DIR 环境变量指定，默认为 <仓库>/build-deb。
 #   脚本不依赖当前工作目录。
+#
+# 交叉编译: 指定 CMAKE_TOOLCHAIN_FILE 即可，包架构取自产物 ELF，不需要手工声明：
+#   CMAKE_TOOLCHAIN_FILE=cmake/toolchains/linux-arm64.cmake \
+#     packaging/package_deb.sh build-arm64
+#   交叉编译必须使用全新的构建目录；包架构与产物不一致时脚本会报错。
+#   DEB_ARCH 可显式覆盖包架构，仅在产物架构无法识别时使用。
 
 set -euo pipefail
 
 APP_NAME="apt-gui"
-ARCH="$(dpkg --print-architecture)"
 MAINTAINER="oi-io <boss@oi-io.cc>"
 HOMEPAGE="https://github.com/o-i-i-o/uos-apt-gui"
 DEPENDS="apt, polkitd | policykit-1, libc6, libstdc++6, libqt5core5a, libqt5widgets5, libqt5dbus5"
@@ -25,12 +30,62 @@ fi
 mkdir -p "$BUILD_DIR"
 BUILD_DIR=$(cd "$BUILD_DIR" && pwd)
 
+CMAKE_ARGS=(-S "$SOURCE_DIR" -B "$BUILD_DIR" -DCMAKE_INSTALL_PREFIX=/usr)
+TOOLCHAIN=""
+if [ -n "${CMAKE_TOOLCHAIN_FILE:-}" ]; then
+    if [ ! -f "$CMAKE_TOOLCHAIN_FILE" ]; then
+        echo "错误：未找到工具链文件 $CMAKE_TOOLCHAIN_FILE" >&2
+        exit 1
+    fi
+    TOOLCHAIN=$(realpath -- "$CMAKE_TOOLCHAIN_FILE")
+    CMAKE_ARGS+=(-DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN")
+    if [ -f "$BUILD_DIR/CMakeCache.txt" ] \
+        && ! grep -q '^CMAKE_TOOLCHAIN_FILE:' "$BUILD_DIR/CMakeCache.txt"; then
+        echo "错误：$BUILD_DIR 已是原生构建目录，交叉编译请指定全新的构建目录" >&2
+        exit 1
+    fi
+fi
+
 echo "=== DEB 包打包脚本 ==="
 echo "构建目录: $BUILD_DIR"
+if [ -n "$TOOLCHAIN" ]; then
+    echo "工具链: $TOOLCHAIN"
+fi
 
 echo "1. 配置与编译..."
-cmake -S "$SOURCE_DIR" -B "$BUILD_DIR" -DCMAKE_INSTALL_PREFIX=/usr >/dev/null
+cmake "${CMAKE_ARGS[@]}" >/dev/null
 cmake --build "$BUILD_DIR" -j"$(nproc)" >/dev/null
+
+# 读取产物 ELF 头判定真实架构，避免交叉编译时把包标成宿主架构
+# 强制 C locale：中文环境下的 readelf 会输出“系统架构”而不是 Machine
+elf_arch() {
+    local machine
+    machine=$(LC_ALL=C readelf -h "$1" 2>/dev/null | sed -n 's/^ *Machine: *//p') || true
+    case "$machine" in
+        *X86-64*) echo amd64 ;;
+        AArch64) echo arm64 ;;
+        *80386*) echo i386 ;;
+        ARM) if [ "$(dpkg --print-architecture)" = "armel" ]; then echo armel; else echo armhf; fi ;;
+        *RISC-V*) echo riscv64 ;;
+        *) echo "" ;;
+    esac
+}
+
+if ! command -v readelf >/dev/null 2>&1; then
+    echo "警告：未找到 readelf，无法校验产物架构" >&2
+    BINARY_ARCH="$(dpkg --print-architecture)"
+else
+    BINARY_ARCH=$(elf_arch "$BUILD_DIR/$APP_NAME")
+    if [ -z "$BINARY_ARCH" ]; then
+        BINARY_ARCH="$(dpkg --print-architecture)"
+        echo "警告：无法识别 $APP_NAME 的 ELF 架构，回退到宿主架构 $BINARY_ARCH" >&2
+    fi
+fi
+ARCH=${DEB_ARCH:-$BINARY_ARCH}
+if [ "$ARCH" != "$BINARY_ARCH" ]; then
+    echo "错误：产物架构为 $BINARY_ARCH，与 DEB_ARCH=$ARCH 不一致" >&2
+    exit 1
+fi
 
 # 版本号唯一来源是 CMakeLists.txt 的 project(VERSION)，这里只读取配置结果
 VERSION=$(sed -n 's/^CMAKE_PROJECT_VERSION:STATIC=//p' "$BUILD_DIR/CMakeCache.txt")
@@ -39,6 +94,7 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 echo "版本: $VERSION"
+echo "架构: $ARCH"
 DEB_DIR="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}"
 OUTPUT_DEB="$BUILD_DIR/${APP_NAME}_${VERSION}_${ARCH}.deb"
 
